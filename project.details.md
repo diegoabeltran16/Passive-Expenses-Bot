@@ -689,46 +689,56 @@ We will structure the development into cycles of pre-co-requisite programming bl
 
 ```
 passive-expenses-bot/
-├── .git/                     # Git repository
-├── .gitignore                # Git ignore file
-├── README.md                 # Project documentation
-├── requirements.txt          # Project dependencies
-├── .env.example              # Example environment file
-├── config/                   # Configuration files
-│   ├── config.yaml           # Configuration settings
-├── docs/                     # Documentation
-│   ├── setup.md              # Setup guide
-│   ├── usage.md              # Usage instructions
-│   ├── api_reference.md      # API reference
-├── src/                      # Source code
-│   ├── bot.py                # Main bot script
-│   ├── database.py           # Database interactions
-│   ├── commands/             # Command handling modules
-│   │   ├── __init__.py       # Package initialization
-│   │   ├── log_expense.py    # Expense logging command
-│   │   ├── list_expenses.py  # Expense listing command
-│   │   ├── delete_expense.py # Expense deletion command
-│   │   ├── generate_report.py# Report generation command
-│   ├── utils/                # Utility modules
-│   │   ├── __init__.py       # Package initialization
-│   │   ├── validation.py     # Input validation functions
-│   │   ├── nlu.py            # Natural Language Understanding functions
-│   │   ├── ai.py             # Generative AI functions
-├── tests/                    # Test cases
-│   ├── __init__.py           # Package initialization
-│   ├── test_bot.py           # Tests for bot.py
-│   ├── test_database.py      # Tests for database.py
-│   ├── test_commands/        # Tests for command modules
-│   │   ├── __init__.py       # Package initialization
-│   │   ├── test_log_expense.py # Tests for log_expense.py
-│   │   ├── test_list_expenses.py # Tests for list_expenses.py
-│   │   ├── test_delete_expense.py # Tests for delete_expense.py
+├── .github                         # CI/CD configuration
+│   └── workflows
+│       ├── ci.yml 
+├── .git/                           # Git repository
+├── config/                         # Configuration files
+│   ├── config.yaml                 # Configuration settings
+├── docs/                           # Documentation
+│   ├── setup.md                    # Setup guide
+│   ├── usage.md                    # Usage instructions
+│   ├── api_reference.md            # API reference
+├── src/                            # Source code
+│   ├── bot.py                      # Main bot script
+│   ├── database.py                 # Database interactions
+│   ├── commands/                   # Command handling modules
+│   │   ├── __init__.py             # Package initialization
+│   │   ├── log_expense.py          # Expense logging command
+│   │   ├── list_expenses.py        # Expense listing command
+│   │   ├── delete_expense.py       # Expense deletion command
+│   │   ├── generate_report.py      # Report generation command
+│   ├── utils/                      # Utility modules
+│   │   ├── __init__.py             # Package initialization
+│   │   ├── validation.py           # Input validation functions
+│   │   ├── nlu.py                  # Natural Language Understanding functions
+│   │   ├── ai.py                   # Generative AI functions
+│   │   ├── logging_config.py       # Logging configuration file
+│   │   └── scheduler.py            # Module for scheduling tasks
+├── tests/                          # Test cases
+│   ├── __init__.py                 # Package initialization
+│   ├── test_bot.py                 # Tests for bot.py
+│   ├── test_database.py            # Tests for database.py
+│   ├── test_commands/              # Tests for command modules
+│   │   ├── __init__.py             # Package initialization
+│   │   ├── test_log_expense.py     # Tests for log_expense.py
+│   │   ├── test_list_expenses.py   # Tests for list_expenses.py
+│   │   ├── test_delete_expense.py  # Tests for delete_expense.py
 │   │   ├── test_generate_report.py # Tests for generate_report.py
-│   ├── test_utils/           # Tests for utility modules
-│   │   ├── __init__.py       # Package initialization
-│   │   ├── test_validation.py # Tests for validation.py
-│   │   ├── test_nlu.py       # Tests for nlu.py
-│   │   ├── test_ai.py        # Tests for ai.py
+│   ├── test_utils/                 # Tests for utility modules
+│   │   ├── __init__.py             # Package initialization
+│   │   ├── test_validation.py      # Tests for validation.py
+│   │   ├── test_nlu.py             # Tests for nlu.py
+│   │   ├── test_ai.py              # Tests for ai.py
+│   │   ├── test_logging.py         # Unit tests for logging configurations
+│   │   └── test_scheduler.py       # Unit tests for scheduler module
+├── .gitignore                      # Git ignore file
+├── README.md                       # Project documentation
+├── requirements.txt                # Project dependencies
+├── .env.example                    # Example environment file
+├── LICENSE
+├── project.details.md
+└── sync_repos.sh
 
 
 ```
@@ -780,10 +790,6 @@ passive-expenses-bot/
   . Tailored Solutions: Develop industry-specific versions of the bot for different types of lifestyle businesses (e.g., freelancers, small retail, creative professionals).
 
 ### Threats
-
-. Competition:
-  . Market Saturation: The market for financial management tools is competitive, with many established players offering similar functionalities.
-  . Technological Advancements: Rapid advancements in AI and financial technology could lead to new competitors with superior capabilities.
 
 . Security Concerns:
   . Data Privacy: Handling sensitive financial data requires robust security measures. Any breach or data leak could significantly damage user trust and the bot’s reputation.
