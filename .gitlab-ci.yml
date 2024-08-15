@@ -1,0 +1,91 @@
+# GitLab CI/CD Configuration for Security Scanning
+
+# This configuration file sets up various security scans in the GitLab CI/CD pipeline.
+# It includes stages for SAST, Secret Detection, Dependency Scanning, and Container Scanning.
+
+# Global include of predefined templates
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/Container-Scanning.gitlab-ci.yml
+
+# The stages defined for the pipeline
+stages:
+  - test
+  - sync
+
+# SAST Job
+# This job performs Static Application Security Testing to identify security vulnerabilities in the code.
+# The job is configured using GitLab's predefined SAST template.
+sast:
+  stage: test
+  script: # Mandatory script keyword to make the job valid
+    - echo "Running SAST"
+  variables:
+    SAST_EXCLUDED_PATHS: 'tests/*,docs/*'  # Exclude certain paths from being scanned
+    include:- template: Security/SAST.gitlab-ci.yml
+
+# Secret Detection Job
+# This job scans the repository for any hardcoded secrets, such as passwords or API keys, that should not be in the codebase.
+# The job uses GitLab's predefined Secret Detection template.
+secret_detection:
+  stage: test
+  script: # Mandatory script keyword to make the job valid
+    - echo "Running Secret Detection"
+
+# Dependency Scanning Job
+# This job scans the project dependencies for known vulnerabilities.
+# It uses GitLab's predefined Dependency Scanning template to identify issues in the libraries and packages used by the project.
+dependency_scanning:
+  stage: test
+  script: # Mandatory script keyword to make the job valid
+    - echo "Running Dependency Scanning"
+
+# Container Scanning Job
+# This job scans container images for known vulnerabilities.
+# It is configured using GitLab's predefined Container Scanning template.
+container_scanning:
+  stage: test
+  script: # Mandatory script keyword to make the job valid
+    - echo "Running Container Scanning"
+
+
+  
+# Sync job
+sync_repos:
+  stage: sync
+  script:
+    - ./sync_repos.sh
+  only:
+    - master  # Adjust this to run on specific branches as needed
+  variables:
+    GITHUB_TOKEN: $GITHUB_TOKEN
+    GITHUB_REPO: $GITHUB_REPO
+    GITLAB_TOKEN: $GITLAB_TOKEN
+    GITLAB_REPO: $CI_PROJECT_PATH
+    GIT_STRATEGY: fetch
+
+
+# Documentation:
+# 1. **Stages**: Defines the different phases of the CI/CD pipeline. In this script, there is a single 'test' stage where all security scans are performed.
+# 2. **SAST Job**:
+#    - **Purpose**: To perform static analysis of the source code to identify security vulnerabilities.
+#    - **Customization**: Excludes specific paths (`tests/*,docs/*`) from being scanned using the `SAST_EXCLUDED_PATHS` variable.
+# 3. **Secret Detection Job**:
+#    - **Purpose**: To detect hardcoded secrets in the codebase that could pose a security risk.
+# 4. **Dependency Scanning Job**:
+#    - **Purpose**: To identify known vulnerabilities in the project's dependencies.
+# 5. **Container Scanning Job**:
+#    - **Purpose**: To scan container images for vulnerabilities.
+
+# Notes:
+# - The `include` keyword is used to incorporate GitLab's predefined security templates, which contain the necessary configurations for each type of security scan.
+# - Environment variables can be set to customize the behavior of the scans. In this example, the `SAST_EXCLUDED_PATHS` variable is used to exclude certain directories from the SAST scan.
+# - Further customization can be achieved by setting additional variables or by adding specific configuration within your `.gitlab-ci.yml` file.
+
+# For more information on customizing the settings, refer to the following GitLab documentation:
+# - SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# - Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/pipeline/#customization
+# - Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# - Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
