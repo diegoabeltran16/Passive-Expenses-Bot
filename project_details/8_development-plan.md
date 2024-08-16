@@ -7,128 +7,71 @@ We will structure the development into cycles of pre-co-requisite programming bl
   - Set up the basic project structure.
   - Implement basic command handling.
   - Establish the SQLite database and CRUD operations.
+  - Integrate basic multilingual support.
 
 - Tasks:
   - Project Setup:
     - Create the project directory structure.
     - Initialize Git repository.
     - Set up requirements.txt with necessary libraries (discord.py, sqlite3).
-
   - Basic Command Handling:
     - Create a Discord bot.
     - Implement basic command for testing connectivity (e.g., !ping).
-
   - Database Setup:
-    - Design the database schema.
-    - Implement CRUD operations (Create, Read, Update, Delete).
+    - Design the database schema for storing expenses and user preferences.
+    - Implement CRUD operations.
+  - Multilingual Setup:
+    - Integrate initial support for English and Spanish in basic commands.
 
-  - Math and Algorithms:
-    - CRUD Operations: SQL queries.
-    - Basic Set Operations: Insert, Update, Delete records.
-
-### Cycle 2: Logging and Listing Expenses
-- Branch Name: cycle-2-expense-logging
+### Cycle 2: Enhanced Command Handling and User Interaction
+- Branch Name: cycle-2-enhanced-commands
 - Objectives:
-  - Implement expense logging feature.
-  - Implement expense listing feature.
+  - Expand command handling to include alias commands and natural language processing (NLP).
+  - Develop the onboarding module for new users.
+  - Implement user interaction flow with multilingual support.
 
 - Tasks:
-  - Expense Logging:
-    - Develop the command to log expenses (log expense).
-    - Validate user input (amount, date, payment method).
+  - Command Handler Expansion:
+    - Implement alias resolution for commands.
+    - Integrate NLP module for processing natural language inputs in both English and Spanish.
+  - Onboarding Module:
+    - Develop an interactive onboarding process that guides new users through setup.
+    - Ensure the onboarding process supports multiple languages.
+  - User Interaction Flow:
+    - Design and implement an intuitive interaction flow for logging expenses, setting budgets, and checking summaries.
 
-  - Expense Listing:
-    - Develop the command to list expenses (show expenses).
-    - Display expenses in a user-friendly format.
-
-  - Math and Algorithms:
-    - Input Validation: Basic arithmetic checks.
-    - Data Retrieval: SQL queries.
-
-### Cycle 3: Deleting and Correcting Expenses
-- Branch Name: cycle-3-expense-deletion
+### Cycle 3: Reporting and Data Management
+- Branch Name: cycle-3-reporting-data
 - Objectives:
-  - Implement expense deletion feature.
-  - Enhance input validation with NLU for correcting expense names.
+  - Implement the reporting module for generating expense summaries.
+  - Develop data management features, including backup and export.
+  - Expand testing to include multilingual support and interactive features.
 
 - Tasks:
-  - Expense Deletion:
-    - Develop the command to delete expenses (remove expense [ID]).
+  - Reporting Module:
+    - Develop functionality to generate monthly summaries by category.
+    - Ensure reports are generated in the user's preferred language.
+  - Data Management:
+    - Implement data backup routines.
+    - Develop the feature to export data to CSV.
+  - Testing Expansion:
+    - Expand the testing suite to cover new features, ensuring reliability in both English and Spanish.
 
-  - Input Validation and Correction:
-    - Integrate NLU for correcting user inputs.
-    - Suggest corrections for misspelled expense names.
-
-  - Math and Algorithms:
-    - Levenshtein Distance: String matching.
-    - CRUD Operations: SQL Delete queries.
-
-### Cycle 4: Generating Reports
-- Branch Name: cycle-4-report-generation
+### Cycle 4: Advanced Features and Final Integration
+- Branch Name: cycle-4-advanced-integration
 - Objectives:
-  - Implement report generation feature using Generative AI.
+  - Implement advanced features, including budget management and automated data cleaning.
+  - Finalize the integration of all components and prepare for deployment.
+  - Conduct comprehensive testing across all features.
 
 - Tasks:
-  - Report Generation:
-    - Develop the command to generate reports (generate report).
-    - Integrate with a Generative AI model to produce summaries.
-
-  - Math and Algorithms:
-    - Transformer Models: Attention mechanisms.
-    - Probability Distributions: Generating coherent text.
-
-### Cycle 5: Enhancing User Interaction
-- Branch Name: cycle-5-user-interaction
-- Objectives:
-  - Improve the bot’s conversational abilities.
-  - Enhance user experience with friendly prompts and responses.
-
-- Tasks:
-  - Conversational Interaction:
-    - Refine prompts and responses to be more conversational.
-    - Implement a more interactive user experience.
-
-  - Feedback and Corrections:
-    - Implement feedback loops for users to confirm or correct inputs.
-
-  - Math and Algorithms:
-    - NLP Techniques: Tokenization, POS tagging.
-    - Text Similarity: Cosine similarity for corrections.
-
-### Cycle 6: Security and Performance Enhancements
-- Branch Name: cycle-6-security-performance
-- Objectives:
-  - Enhance security measures.
-  - Optimize performance for scalability.
-
-- Tasks:
-  - Security Enhancements:
-    - Implement data encryption.
-    - Securely manage tokens and sensitive information.
-
-  - Performance Optimization:
-    - Optimize database queries and indexing.
-    - Implement efficient data retrieval methods.
-
-  - Math and Algorithms:
-    - Cryptographic Algorithms: Encryption and decryption.
-    - Query Optimization: Indexing and efficient SQL queries.
-
-### Cycle 7: Testing and Quality Assurance
-- Branch Name: cycle-7-testing-qa
-- Objectives:
-  - Conduct comprehensive testing.
-  - Ensure quality assurance and documentation.
-
-- Tasks:
-  - Testing:
-    - Develop unit and integration tests.
-    - Conduct user acceptance testing.
-
-  - Quality Assurance:
-    - Review and refine documentation.
-    - Perform code reviews and static analysis.
-
-  - Math and Algorithms:
-    - Test Case Generation: Validating functions and components.
-    - Statistical Analysis: Analyzing feedback and test results.
+  - Budget Manager:
+    - Develop the budget tracking system, including alerts for nearing or exceeding budgets.
+    - Ensure budget notifications are available in both English and Spanish.
+  - Data Validation:
+    - Implement automated data cleaning and validation checks.
+    - Provide user prompts for reviewing and correcting flagged entries.
+  - Final Integration:
+    - Integrate all components and ensure they work seamlessly together.
+    - Conduct end-to-end testing to validate the bot's functionality.
+    - Prepare the bot for deployment, ensuring all documentation is updated and available in both languages.
