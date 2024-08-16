@@ -1,3 +1,5 @@
+# Project Details
+
 ## Development Plan
 We will structure the development into cycles of pre-co-requisite programming blocks, moving from the simplest to the most complex. Each cycle will be developed in a separate Git branch, ensuring each phase is independently tested before merging into the main branch. This approach will facilitate continuous integration, incremental improvements, and a robust, scalable, user-friendly bot.
 

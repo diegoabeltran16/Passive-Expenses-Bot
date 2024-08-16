@@ -1,3 +1,5 @@
+# Project Details
+
 ## Project structure
 
 ```

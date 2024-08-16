@@ -1,4 +1,6 @@
-# Passive Expenses Bot
+# Project Details
+
+## Passive Expenses Bot
 Provide a simple tool for logging, viewing, and managing expenses, suitable for personal use and showcasing in a portfolio.
 
 ## Scope
@@ -20,7 +22,7 @@ The Passive Expenses Discord Bot is designed to help users manage and organize t
 - Maintain support for structured commands while expanding the bot's ability to understand and process casual, everyday language in both English and Spanish.
 - Ensure that the bot remains user-friendly, providing clear, helpful, and context-aware responses based on the input style and language chosen by the user.
 
-### Key Features
+## Key Features
 - **Expense Logging:** Users can log expenses by specifying the amount, payment method, and date, in either English or Spanish.
 - **Expense Listing:** Retrieve and display a list of all logged expenses.
 - **Customizable Responses:** Allow users to customize the tone of the bot’s responses to make the interaction more personal, with support for different languages.

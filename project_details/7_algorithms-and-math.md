@@ -1,3 +1,5 @@
+# Project Details
+
 ## Algorithms and Mathematics for the Passive Expenses Discord Bot
 
 ### Natural Language Understanding (NLU)

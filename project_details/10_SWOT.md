@@ -1,3 +1,5 @@
+# Project Details
+
 ## SWOT Analysis
 
 ### Strengths

@@ -1,4 +1,4 @@
-# Passive Expenses Bot Requirements
+# Project Details
 
 ## Functional Requirements
 - **Expense Logging:**

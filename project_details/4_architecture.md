@@ -1,5 +1,6 @@
-# Architecture
+# Project Details
 
+## Architecture
 The Passive Expenses Discord Bot is designed using a multi-layered architecture to ensure modularity, maintainability, and scalability. The architecture consists of the following layers: Client Layer, Application Layer, Data Layer, and Integration Layer.
 
 ## Client Layer
