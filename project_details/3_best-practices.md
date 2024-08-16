@@ -44,7 +44,7 @@ Use branches to develop new features and merge them into the main branch after t
 
 ### NLU Model
 - **Model Selection:**
-  - Choose a lightweight NLU model suitable for simple text processing, such as SpaCy.
+  - Choose a lightweight open source NLU model suitable for simple text processing, such as SpaCy.
   - Ensure the model is capable of handling the specific needs of the project.
 - **Training and Fine-Tuning:**
   - Fine-tune the model with relevant data if necessary.
@@ -98,3 +98,57 @@ Use branches to develop new features and merge them into the main branch after t
 -**Report Generation:**
   - Ensure generated reports are clear, concise, and easy to understand.
   - Use formatting to enhance readability.
+
+## Updated Best Practices
+
+### Command Aliases
+- **Purpose:** Enhance usability by allowing shorter or alternative command usage.
+- **Practice:** Define aliases clearly and ensure they are intuitive and consistent across the bot's command structure.
+
+### Expense Categorization
+- **Purpose:** Help users organize and analyze their expenses effectively.
+- **Practice:** Use a consistent and well-defined set of categories. Encourage users to apply tags to all expenses for better tracking and reporting.
+
+### Monthly Summary Command
+- **Purpose:** Provide users with a quick overview of their monthly expenses.
+- **Practice:** Ensure the summary is concise, displaying key information such as total spending by category. Provide clear instructions on how to interpret the data.
+
+### Data Backup/Export Feature
+- **Purpose:** Safeguard user data and provide flexibility for data usage outside of Discord.
+- **Practice:** Implement regular data backup routines and allow users to export data in a commonly used format like CSV. Ensure data integrity during export.
+
+### Basic Budgeting Feature
+- **Purpose:** Assist users in managing their finances by setting and monitoring budgets.
+- **Practice:** Allow users to set realistic budget limits and notify them proactively when they approach or exceed these limits.
+
+### Customization of Responses
+- **Purpose:** Personalize user interactions with the bot.
+- **Practice:** Offer a range of response styles, and ensure that each style is implemented consistently across all bot interactions.
+
+### Automated Data Cleaning
+- **Purpose:** Maintain the accuracy and integrity of user data.
+- **Practice:** Regularly check for and address potential data issues, such as duplicates or anomalies. Provide users with options to review and correct flagged entries.
+
+### Generative AI for Reports
+- **Reason for Removal:** Simplification of the bot's functionality to avoid unnecessary complexity.
+- **Practice:** Focus on providing structured, clear, and actionable text-based reports without the need for AI.
+
+### Natural Language Processing (NLP)
+- **Reason for Removal:** Potential complexity and reliability issues with interpreting user inputs.
+- **Practice:** Rely on structured command inputs, possibly supported by auto-complete suggestions, to ensure clarity and precision.
+
+### Integration with External APIs
+- **Reason for Removal:** To keep the bot lightweight and reduce dependencies on external systems.
+- **Practice:** Keep functionalities self-contained within the bot unless absolutely necessary, and ensure any external integrations are well-justified and stable.
+
+### Improved Error Handling
+- **Purpose:** Enhance user experience and simplify troubleshooting.
+- **Practice:** Provide clear, actionable error messages. Include suggestions for how users can resolve issues.
+
+### Interactive Setup Process
+- **Purpose:** Make it easier for new users to get started with the bot.
+- **Practice:** Implement a guided setup process that walks users through initial configuration and command usage.
+
+### More Robust Testing Framework
+- **Purpose:** Ensure that the bot remains reliable as new features are added.
+- **Practice:** Expand test coverage, especially for edge cases and user input variations. Regularly review and update test cases as the bot evolves.
