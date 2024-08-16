@@ -1,152 +1,58 @@
-## Interaction Flow
+# Interaction Flow
 The interaction less computerized and more interactive, we can incorporate more conversational elements, natural language responses, and a touch of personality to the bot. This can be achieved by using a mix of friendly prompts, confirmations, and feedback, making the interaction feel more like a natural conversation.
 
-### Main Interaction Screen
-- Description: The primary interface where users interact with the bot using conversational commands.
-- Components:
-  - Command Input: Area where users type commands.
-  - Response Display: Area where the bot's responses are shown.
+## Initial Setup and Onboarding
+- **User:** "Hey bot, how do I get started?"
+- **Bot (English):** "Welcome! Let's get you set up. Would you like to log your expenses, set a budget, or customize your experience?"
+- **User:** "Hola bot, ¿cómo empiezo?"
+- **Bot (Spanish):** "¡Bienvenido! Vamos a configurarlo. ¿Te gustaría registrar tus gastos, establecer un presupuesto o personalizar tu experiencia?"
+- **Components Involved:** Onboarding Module, Command Handler, User Preferences
 
-```
-+--------------------------------------+
-| Discord Interface                    |
-|--------------------------------------|
-| User: Hey bot, I need to log an      |
-| expense                              |
-|--------------------------------------|
-| Bot: Sure thing! What did you spend  |
-| on?                                  |
-|--------------------------------------|
-| User: Spotify                        |
-|--------------------------------------|
-| Bot: Got it! How much did you pay?   |
-|--------------------------------------|
-| User: 9.99                           |
-|--------------------------------------|
-| Bot: And how did you pay for it?     |
-|--------------------------------------|
-| User: Credit Card                    |
-|--------------------------------------|
-| Bot: Awesome! When was this? (YYYY-MM|
-| -DD)                                 |
-|--------------------------------------|
-| User: 2024-07-29                     |
-|--------------------------------------|
-| Bot: Great! I’ve logged Spotify - $9.|
-| 99 - Credit Card - 2024-07-29 for you|
-+--------------------------------------+
+## Logging an Expense
+- **User:** "I just paid $50 for my Internet bill."
+- **Bot (English):** "Got it! Do you want to categorize this expense under 'utilities'?"
+- **User:** "Acabo de pagar $50 por mi factura de Internet."
+- **Bot (Spanish):** "¡Entendido! ¿Quieres categorizar este gasto bajo 'servicios públicos'?"
+- **Components Involved:** Command Handler, Expense Logger, Database Schema
 
+## Setting a Budget
+- **User:** "Can I set a budget for utilities?"
+- **Bot (English):** "Sure! How much would you like to budget for utilities this month?"
+- **User:** "¿Puedo establecer un presupuesto para los servicios públicos?"
+- **Bot (Spanish):** "¡Claro! ¿Cuánto te gustaría presupuestar para servicios públicos este mes?"
+- **Components Involved:** Budget Manager, Command Handler, Database Schema
 
-```
-### Logging an Expense
-- Description: The sequence of interactions for logging an expense using conversational prompts.
-- Components:
-  - Prompts: Bot prompts for expense details.
-  - User Inputs: User provides details in response to prompts.
+## Checking a Monthly Summary
+- **User:** "Can you give me a summary of my spending this month?"
+- **Bot (English):** "Here's your spending summary for August: Utilities: $150 (75% of your budget)."
+- **User:** "¿Puedes darme un resumen de mis gastos de este mes?"
+- **Bot (Spanish):** "Aquí está tu resumen de gastos para agosto: Servicios públicos: $150 (75% de tu presupuesto)."
+- **Components Involved:** Reporting Module, Command Handler, Database Schema
 
-```
-+--------------------------------------+
-| Discord Interface                    |
-|--------------------------------------|
-| User: Hey bot, I need to log an      |
-| expense                              |
-|--------------------------------------|
-| Bot: Sure thing! What did you spend  |
-| on?                                  |
-|--------------------------------------|
-| User: Spotify                        |
-|--------------------------------------|
-| Bot: Got it! How much did you pay?   |
-|--------------------------------------|
-| User: 9.99                           |
-|--------------------------------------|
-| Bot: And how did you pay for it?     |
-|--------------------------------------|
-| User: Credit Card                    |
-|--------------------------------------|
-| Bot: Awesome! When was this? (YYYY-MM|
-| -DD)                                 |
-|--------------------------------------|
-| User: 2024-07-29                     |
-|--------------------------------------|
-| Bot: Great! I’ve logged Spotify - $9.|
-| 99 - Credit Card - 2024-07-29 for you|
-+--------------------------------------+
+## Exporting Data
+- **User:** "I need to export my data."
+- **Bot (English):** "No problem! Here's a CSV file with your expense data: [Download Link]."
+- **User:** "Necesito exportar mis datos."
+- **Bot (Spanish):** "No hay problema. Aquí tienes un archivo CSV con tus datos de gastos: [Enlace de descarga]."
+- **Components Involved:** Data Management Module, Command Handler, Database Schema
 
+## Handling Errors
+- **User:** "I paid for Gas."
+- **Bot (English):** "It looks like 'Gas' isn't a category yet. Would you like to create one?"
+- **User:** "Pagué por Gas."
+- **Bot (Spanish):** "Parece que 'Gas' no es una categoría aún. ¿Te gustaría crear una?"
+- **Components Involved:** Command Handler, Error Handler, Expense Logger, Database Schema
 
-```
+## Customized Responses
+- **User:** "Can you be more casual?"
+- **Bot (English):** "Sure thing! From now on, I'll keep it casual. Anything else?"
+- **User:** "¿Puedes ser más informal?"
+- **Bot (Spanish):** "¡Claro que sí! A partir de ahora, seré más informal. ¿Algo más?"
+- **Components Involved:** Command Handler, User Preferences, Response Generator
 
-### Listing Expenses
-- Description: The interaction for listing all logged expenses with a conversational command.
-- Components:
-  - Command Input: Area where the user types the list command.
-  - Expense List Display: Area where the bot displays the list of expenses
-
-```
-+--------------------------------------+
-| Discord Interface                    |
-|--------------------------------------|
-| User: Can you show me my expenses?   |
-|--------------------------------------|
-| Bot: Here’s what I have:             |
-| 1. Spotify - $9.99 - Credit Card -   |
-| 2024-07-29                           |
-| 2. ENEL Codensa - $45.00 - Debit Card|
-| - 2024-07-25                         |
-| 3. Claro - $30.00 - Cash - 2024-07-20|
-+--------------------------------------+
-
-
-```
-### Deleting an Expense
-- Description: The interaction for deleting a specific expense using a conversational command.
-- Components:
-  - Command Input: Area where the user types the delete command.
-  - Confirmation Display: Area where the bot confirms the deletion.
-
-```
-+--------------------------------------+
-| Discord Interface                    |
-|--------------------------------------|
-| User: Can you remove expense number 2|
-|--------------------------------------|
-| Bot: No problem! I’ve removed the    |
-| expense: ENEL Codensa - $45.00 - 2024|
-| -07-25                               |
-+--------------------------------------+
-
-
-```
-### Generating a Report
-- Description: The interaction for generating an expense report with a conversational command.
-- Components:
-  - Command Input: Area where the user types the report command.
-  - Report Display: Area where the bot displays the generated report.
-
-```
-+--------------------------------------+
-| Discord Interface                    |
-|--------------------------------------|
-| User: Can you give me a report?      |
-|--------------------------------------|
-| Bot: Sure! Let me pull up your       |
-| report...                            |
-|--------------------------------------|
-| Bot:                                 |
-| Here’s your expense summary:         |
-| - Total expenses this month: $84.99  |
-| - Most frequently used payment method|
-| : Credit Card                        |
-| - Highest single expense: ENEL Codensa|
-| - $45.00                             |
-| - Categories with most expenses:     |
-|   1. Utilities: $75.00               |
-|   2. Subscriptions: $9.99            |
-|--------------------------------------|
-| You’ve spent $84.99 on 3 expenses    |
-| this month. Keep an eye on your      |
-| spending to manage your budget better|
-+--------------------------------------+
-
-
-```
+## Checking Budgets
+- **User:** "How's my budget looking?"
+- **Bot (English):** "You're $10 away from your utilities budget limit of $200."
+- **User:** "¿Cómo va mi presupuesto?"
+- **Bot (Spanish):** "Te faltan $10 para alcanzar tu límite de presupuesto de $200 en servicios públicos."
+- **Components Involved:** Budget Manager, Command Handler, Database Schema

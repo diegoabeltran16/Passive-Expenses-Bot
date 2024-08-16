@@ -1,64 +1,76 @@
-## Components
+# Components
 
-### Discord Bot Interface
-- Description: The main interface for user interaction, allowing users to issue commands and receive responses.
-- Responsibilities:
-  - Receive user commands through Discord.
-  - Display responses and feedback to users.
-  - Handle events such as message reception and command execution.
+## Command Handler
+- **Functionality:** 
+  - Handles all user commands and their aliases.
+  - Manages both structured and natural language inputs, interpreting user intent and routing commands appropriately.
+  - Integrates with an NLP module to process conversational language, allowing users to interact with the bot naturally in either English or Spanish.
+  - Adjusts responses based on user preferences (e.g., formal, casual, humorous) and language settings.
 
-### NLU Component
+## NLP Module
+- **Functionality:** 
+  - A component responsible for interpreting natural language inputs.
+  - Converts user phrases into actionable commands by mapping them to the corresponding bot functions in the appropriate language.
 
-- Description: Processes and understands user inputs to enhance interaction and correct potential errors in expense names.
-- Responsibilities:
-  - Use natural language processing (NLP) to interpret user inputs.
-  - Suggest correct expense names if the input is incorrect.
-  - Improve the user experience by understanding the context of inputs.
+## Expense Logger
+- **Functionality:** 
+  - Logs user expenses into the database.
+  - Supports categorization of expenses (e.g., "utilities," "subscriptions").
+  - Allows tagging and categorization for better organization and reporting.
 
-### Generative AI Component
+## Database Schema
+- **Functionality:** 
+  - Stores user data, including expenses, categories, and user preferences.
+  - Includes fields for expense categories, budget tracking, and language preferences.
 
-- Description: Generates natural language reports and insights based on logged expense data.
-- Responsibilities:
-  - Create summaries and reports from the expense data.
-  - Use generative AI models (e.g., OpenAI GPT) to produce coherent and relevant text.
-  - Integrate via API calls to process and return data.
+## Reporting Module
+- **Functionality:** 
+  - Generates reports based on user expenses.
+  - Supports monthly summaries by category.
+  - Allows exporting reports and data to CSV files for user access.
+  - Ensures reports are generated in the user's preferred language.
 
-### User Input Analysis Component
+## Data Management Module
+- **Functionality:** 
+  - Manages all data-related tasks, including data backup and export.
+  - Ensures data integrity during export, allowing users to retain and analyze their data externally.
 
-- Description: Analyzes user inputs for accuracy and relevance.
-- Responsibilities:
-  - Validate user inputs to ensure they conform to expected formats.
-  - Use NLU to interpret and correct user inputs.
-  - Provide real-time feedback to users about the validity of their inputs.
+## Budget Manager
+- **Functionality:** 
+  - Allows users to set and monitor budgets for different expense categories.
+  - Alerts users when they are nearing or exceeding their budget limits, in their preferred language.
 
-### Prediction Component
+## User Preferences
+- **Functionality:** 
+  - Stores user-specific settings, including preferred response styles and language preferences.
+  - Ensures a personalized experience by adapting responses based on user preferences.
 
-- Description: Predicts user needs and provides intelligent suggestions based on historical data.
-- Responsibilities:
-  - Analyze past expense data to predict future expenses.
-  - Suggest possible expenses based on user input patterns.
-  - Enhance user interaction by providing context-aware suggestions.
+## Data Validation Module
+- **Functionality:** 
+  - Performs automated data cleaning by checking for duplicates and anomalies.
+  - Prompts users to review and correct any data issues, maintaining the integrity of the stored information.
 
-### Database Management Component
+## Error Handler
+- **Functionality:** 
+  - Manages error messages and provides detailed, user-friendly guidance on resolving issues.
+  - Enhanced to offer more specific suggestions and corrective actions in the user's preferred language.
 
-- Description: Manages the storage, retrieval, and integrity of expense data.
-- Responsibilities:
-  - Store expense data securely in an SQLite database.
-  - Perform CRUD (Create, Read, Update, Delete) operations.
-  - Ensure data integrity and handle database schema migrations.
+## Onboarding Module
+- **Functionality:** 
+  - Guides new users through the initial setup and familiarizes them with basic commands.
+  - Ensures a smooth onboarding process by providing a step-by-step interactive setup in the user's preferred language.
 
-### Automation and Scheduling Component
+## Response Generator
+- **Functionality:** 
+  - Produces context-aware responses tailored to the user's input style, whether formal, casual, or humorous, and in the user's preferred language.
+  - Ensures that all interactions with the bot are engaging and easy to understand, regardless of the input method.
 
-- Description: Automates repetitive tasks and schedules regular operations.
-- Responsibilities:
-  - Automate database backups and maintenance tasks.
-  - Schedule regular reports and notifications.
-  - Use tools like cron jobs for task scheduling.
+## Interaction Flow Controller
+- **Functionality:** 
+  - Manages the overall flow of user interactions, adapting to both structured commands and conversational inputs.
+  - Provides guidance and feedback to users, ensuring a smooth and intuitive interaction experience, in the user's preferred language.
 
-### Logging and Error Handling Component
-
-- Description: Manages logging of system activities and handles errors gracefully.
-- Responsibilities:
-  - Log important events and errors using Python’s logging module.
-  - Provide detailed error messages for debugging purposes.
-  - Implement try-except blocks to catch and handle exceptions.
+## Testing Suite
+- **Functionality:** 
+  - Comprehensive testing framework covering all bot functionalities.
+  - Expanded to include tests for new features, edge cases, NLP, and varied user inputs in both English and Spanish, ensuring the bot remains stable as it evolves.
