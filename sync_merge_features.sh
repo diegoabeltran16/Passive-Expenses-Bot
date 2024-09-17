@@ -29,16 +29,16 @@ git remote add gitlab "https://${GITLAB_TOKEN}@${GITLAB_REPO}"
 git fetch github
 git fetch gitlab
 
-# Checkout main branch
-git checkout main
+# Checkout cycle-1 branch
+git checkout cycle-1
 
-# Merge all feature branches into main
+# Merge all feature branches into cycle-1
 for branch in $(git branch --list "feature/*"); do
-  git merge $branch --no-ff -m "Merge feature $branch into main"
+  git merge $branch --no-ff -m "Merge feature $branch into cycle-1"
 done
 
 # Push changes to GitHub and GitLab
-git push github main || echo "Failed to push to GitHub."
-git push gitlab main || echo "Failed to push to GitLab."
+git push github cycle-1 || echo "Failed to push to GitHub."
+git push gitlab cycle-1 || echo "Failed to push to GitLab."
 
-echo "All feature branches merged into main and synchronized."
+echo "All feature branches merged into cycle-1 and synchronized."

@@ -6,8 +6,8 @@ class LogExpense(commands.Cog):
 
     @commands.command(name='log_expense')
     async def log_expense(self, ctx, amount: float, description: str):
-        # Placeholder logic for now
+        print(f'log_expense command triggered with amount: {amount}, description: {description}')
         await ctx.send(f'Expense logged: {amount} for {description}')
 
-def setup(bot):
-    bot.add_cog(LogExpense(bot))
+async def setup(bot):  # This needs to be async now
+    await bot.add_cog(LogExpense(bot))  # Await the add_cog call
