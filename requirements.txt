@@ -1,0 +1,2 @@
+discord.py==2.0.0  # La biblioteca principal de Discord utilizada para interactuar con la API de Discord
+PyYAML==6.0        # Se utiliza para leer archivos de configuración (config.yaml)
