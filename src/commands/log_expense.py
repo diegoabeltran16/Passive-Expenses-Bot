@@ -1,6 +1,7 @@
-# Importa los módulos necesarios de discord.ext para crear comandos y la utilidad db para interactuar con la base de datos 
-# SQLite.from discord.ext import commands
+# Importa los módulos necesarios de discord.ext para crear comandos y la utilidad db para interactuar con la base de datos SQLite.
+from discord.ext import commands  
 from utils import db  # Importe el módulo db donde se encuentran sus funciones de base de datos
+
 
 # Definir una clase Cog para manejar el comando "log_expense".
 class LogExpense(commands.Cog):
@@ -85,4 +86,4 @@ async def setup(bot):
     --------------
     Esta función se llama normalmente cuando el bot se está inicializando para cargar la funcionalidad de este comando.
     """
-    await bot.add_cog(LogExpense(bot))  # Await the add_cog call to add this Cog to the bot instance.
+    await bot.add_cog(LogExpense(bot))  # Espera la llamada add_cog para añadir este Cog a la instancia del bot.
