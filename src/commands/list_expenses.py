@@ -1,100 +1,100 @@
-# Import necessary modules from discord.ext for creating commands and the database utility for listing expenses.
+# Importa los módulos necesarios de discord.ext para crear comandos y la utilidad de base de datos para listar gastos.
 from discord.ext import commands
-from utils.db import list_expenses  # Import the function that retrieves the list of expenses from the database.
+from utils.db import list_expenses  # Importe la función que recupera la lista de gastos de la base de datos.
 
-# Define a Cog class for handling the "list_expenses" command.
+# Definir una clase Cog para manejar el comando "list_expenses".
 class ListExpenses(commands.Cog):
     """
-    A Cog that handles listing all expenses stored in the SQLite database.
+    Un Cog que se encarga de listar todos los gastos almacenados en la base de datos SQLite.
 
-    Attributes:
+    Atributos:
     -----------
     bot : commands.Bot
-        The Discord bot instance to which this Cog is added.
+        La instancia del bot de Discord a la que se añade este Cog.
 
-    Methods:
+    Metodos:
     --------
     list_expenses(ctx):
-        Retrieves a list of all stored expenses from the database and displays them in the channel.
+        Recupera de la base de datos una lista de todos los gastos almacenados y los muestra en el canal.
     """
 
     def __init__(self, bot):
         """
-        Constructor that initializes the bot instance.
+        Constructor que inicializa la instancia del bot.
 
-        Parameters:
+        Parametros:
         -----------
         bot : commands.Bot
-            The bot instance that will use this Cog.
+            La instancia del bot que usará este Cog.
         """
         self.bot = bot
 
     @commands.command(name='list_expenses')
     async def list_expenses(self, ctx):
         """
-        A command that lists all expenses from the SQLite database and sends them to the Discord channel.
+        Un comando que lista todos los gastos de la base de datos SQLite y los envía al canal Discord.
 
-        This command retrieves all logged expenses and formats them into a message that is sent to the
-        Discord channel. If no expenses are found, the bot informs the user that there are no logged expenses.
+        Este comando recupera todos los gastos registrados y los formatea en un mensaje que se envía al
+        Canal de discord. Si no se encuentran gastos, el bot informa al usuario de que no hay gastos registrados.
 
-        Parameters:
+        Parametros:
         -----------
         ctx : commands.Context
-            The context in which the command is being invoked, used to interact with the user and the channel.
+            El contexto en el que se está invocando el comando, utilizado para interactuar con el usuario y el canal.
 
-        Behavior:
+        Comportamiento:
         ---------
-        - The bot calls the `list_expenses()` function to retrieve all expenses from the database.
-        - If no expenses are found, it sends a message indicating "No expenses found."
-        - If expenses are found, it formats each expense into a readable message (including the ID, amount, description, and date).
-        - The bot sends the formatted list of expenses to the channel.
+        - El bot llama a la función `list_expenses()` para recuperar todos los gastos de la base de datos.
+        - Si no se encuentran gastos, envía un mensaje indicando "No se han encontrado gastos".
+        - Si se encuentran gastos, formatea cada gasto en un mensaje legible (incluyendo el ID, el importe, la descripción y la fecha).
+        - El bot envía la lista de gastos formateada al canal.
 
-        Example Usage:
+        Ejemplo de uso:
         --------------
-        User types the following command in Discord:
+        El usuario escribe el siguiente comando en Discord:
         !list_expenses
         
-        If expenses are found, the bot responds with:
+        Si se encuentran gastos, el bot responde con:
         "Here are your expenses:
         ID: 1, Amount: 100.0, Description: Lunch at cafe, Date Added: 2024-09-18 12:34:56
         ID: 2, Amount: 50.0, Description: Groceries, Date Added: 2024-09-18 13:40:21"
 
-        If no expenses are found, the bot responds with:
+        Si no se encuentran gastos, el bot responde con:
         "No expenses found."
         """
-        # Fetch the list of expenses from the database using the db utility function.
+        # Obtenga la lista de gastos de la base de datos utilizando la función de utilidad db.
         expenses = list_expenses()
 
-        # If no expenses are found, notify the user.
+        # Si no se encuentran gastos, notifíqueselo al usuario.
         if not expenses:
             await ctx.send("No expenses found.")
             return
 
-        # Prepare the message that lists all expenses.
+        # Prepare el mensaje que enumera todos los gastos.
         message = "Here are your expenses:\n"
         for expense in expenses:
             message += f"ID: {expense[0]}, Amount: {expense[1]}, Description: {expense[2]}, Date Added: {expense[3]}\n"
         
-        # Send the formatted list of expenses to the channel.
+        # Envía la lista de gastos formateada al canal.
         await ctx.send(message)
 
-# Asynchronous setup function to add the Cog to the bot.
+# Función de configuración asíncrona para añadir el Cog al bot.
 async def setup(bot):
     """
-    Adds the ListExpenses Cog to the bot.
+    Añade el Cog ListExpenses al bot.
 
-    Parameters:
+    Parametros:
     -----------
     bot : commands.Bot
-        The bot instance to which this Cog is added.
+        La instancia de bot a la que se añade este Cog.
 
-    Behavior:
+    Comportamiento:
     ---------
-    - This function is necessary for adding the Cog to the bot asynchronously.
-    - It ensures that the Cog is ready and can respond to the 'list_expenses' command.
+    - Esta función es necesaria para añadir el Cog al bot de forma asíncrona.
+    - Asegura que el Cog está listo y puede responder al comando 'list_expenses'.
 
-    Example Usage:
+    Ejemplo de uso:
     --------------
-    This function is typically called when the bot is initializing to load this command functionality.
+    Esta función se llama normalmente cuando el bot se está inicializando para cargar la funcionalidad de este comando.
     """
-    await bot.add_cog(ListExpenses(bot))  # Await the add_cog call to add this Cog to the bot instance.
+    await bot.add_cog(ListExpenses(bot))  # Espera la llamada add_cog para añadir este Cog a la instancia del bot.
