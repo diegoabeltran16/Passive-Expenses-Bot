@@ -1,6 +1,10 @@
 # Importa los módulos necesarios de los paquetes discord y yaml.
 import discord
 from discord.ext import commands
+from commands.set_language import SetLanguage
+from utils.lang import translate
+from utils.shared import user_language
+
 import yaml
 
 # Cargar la configuración desde el archivo config.yaml
@@ -35,7 +39,7 @@ async def load_extensions():
     Carga asíncrona de extensiones (módulos de comandos).
 
     Esta función carga dinámicamente una lista de extensiones predefinidas (comandos) que manejan varias 
-    funcionalidades como registrar gastos, borrar gastos, listar gastos y actualizar gastos.
+    funcionalidades como registrar gastos, borrar gastos, listar gastos, actualizar gastos y configurar el idioma del usuario.
 
     Extensiones cargadas:
     ------------------
@@ -43,6 +47,7 @@ async def load_extensions():
     2. delete_expense - Elimina un gasto existente por ID.
     3. list_expenses - Lista todos los gastos almacenados en la base de datos.
     4. update_expense - Actualiza un gasto existente modificando el importe o la descripción.
+    5. set_language - Permite a los usuarios configurar su idioma preferido para las respuestas del bot.
 
     Para cada extensión, el bot intenta cargarla y, en caso de fallo, se imprime un mensaje de error.
 
@@ -56,7 +61,8 @@ async def load_extensions():
         'commands.log_expense',
         'commands.delete_expense',
         'commands.list_expenses',
-        'commands.update_expense'
+        'commands.update_expense',
+        'commands.set_language'  # Incluye la extensión para set_language
     ]
 
     for extension in extensions:
@@ -96,7 +102,7 @@ async def ping(ctx):
     Cuando el usuario escribe `!ping` en el chat, el bot responde con "¡Pong!".
     Este comando es útil para confirmar que el bot está en línea y es capaz de responder a los comandos.
 
-    Parametros:
+    Parámetros:
     -----------
     ctx : commands.Context
         El contexto en el que se invoca el comando, utilizado para interactuar con el emisor del mensaje.
@@ -107,6 +113,29 @@ async def ping(ctx):
     Pong!
     """
     await ctx.send("Pong!")  # Responde con "¡Pong!" para verificar la capacidad de respuesta del bot.
+
+# Asynchronous setup function to ensure the SetLanguage cog is loaded correctly
+async def setup(bot):
+    """
+    Configuración asíncrona para añadir el Cog SetLanguage al bot.
+
+    Esta función asegura que el Cog SetLanguage esté cargado en el bot. 
+    Verifica si ya está cargado, y si no, lo añade.
+
+    Parámetros:
+    -----------
+    bot : commands.Bot
+        La instancia del bot a la que se añade el Cog SetLanguage.
+
+    Ejemplo de uso:
+    --------------
+    Esta función se llama normalmente al iniciar el bot para cargar la funcionalidad de este comando.
+    """
+    if not bot.get_cog("SetLanguage"):
+        await bot.add_cog(SetLanguage(bot))
+        print("SetLanguage Cog loaded successfully")
+    else:
+        print("SetLanguage Cog already loaded, skipping.")
 
 # Ejecuta el bot con el token proporcionado en el archivo de configuración.
 bot.run(config['bot']['token'])
