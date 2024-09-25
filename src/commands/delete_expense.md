@@ -1,3 +1,10 @@
+# delete_expense
+
+## Descripción general
+
+## Codigo
+
+```
 # Importar los módulos necesarios de discord.ext para crear comandos y la utilidad db para eliminar gastos.
 from discord.ext import commands
 from utils.lang import translate  # Importar el módulo de traducción para proporcionar respuestas multilingües
@@ -98,3 +105,51 @@ async def setup(bot):
     Esta función se llama normalmente cuando el bot se está inicializando para cargar la funcionalidad de este comando.
     """
     await bot.add_cog(DeleteExpense(bot))  # Espera la llamada add_cog para añadir este Cog a la instancia del bot.
+
+```
+
+## PseudoCodigo
+
+```
+INICIO
+
+IMPORTAR los módulos necesarios:
+    - commands de discord.ext para manejar comandos de Discord
+    - translate de utils.lang para la funcionalidad de traducción
+    - db de utils para la interacción con la base de datos
+    - user_language de utils.shared para acceder a las preferencias de idioma de los usuarios
+    - yaml para la carga de configuraciones
+
+CARGAR la configuración desde el archivo config.yaml
+    ABRIR el archivo config.yaml
+    CARGAR la configuración en la variable 'config'
+
+DEFINIR la clase DeleteExpense como un "Cog" para manejar el comando de eliminar gastos
+    MÉTODO __init__(self, bot):
+        GUARDAR la instancia del bot en un atributo de la clase
+
+    DEFINIR el método delete_expense como un comando
+        RECIBIR los parámetros: ctx (contexto del comando) y expense_id (ID del gasto a eliminar)
+
+        OBTENER el idioma preferido del usuario
+            SI el usuario tiene un idioma configurado en user_language:
+                ASIGNAR ese idioma a la variable 'language'
+            DE LO CONTRARIO:
+                ASIGNAR el idioma predeterminado de la configuración (config) a 'language'
+
+        IMPRIMIR el idioma seleccionado para depuración
+
+        LLAMAR a la función db.delete_expense para eliminar el gasto de la base de datos
+
+        TRADUCIR el mensaje de confirmación utilizando la función translate
+            PASAR el mensaje clave "expense_deleted" y el ID del gasto a la función translate
+
+        ENVIAR el mensaje traducido al canal de Discord usando ctx.send
+
+FUNCIÓN asíncrona setup(bot):
+    AÑADIR el Cog DeleteExpense al bot utilizando add_cog
+    ESPERAR a que el Cog sea añadido al bot
+
+FIN
+
+```

@@ -1,3 +1,10 @@
+# bot
+
+## Descripción general
+
+## Codigo
+
+```
 # Importa los módulos necesarios de los paquetes discord y yaml.
 import discord
 from discord.ext import commands
@@ -139,3 +146,54 @@ async def setup(bot):
 
 # Ejecuta el bot con el token proporcionado en el archivo de configuración.
 bot.run(config['bot']['token'])
+
+```
+
+## PseudoCodigo
+
+```
+INICIO
+
+IMPORTAR los módulos necesarios:
+    - discord y commands de discord.ext para manejar el bot y sus comandos
+    - SetLanguage de commands.set_language para configurar la funcionalidad multilingüe
+    - translate de utils.lang para traducir los mensajes
+    - user_language de utils.shared para acceder a las preferencias de idioma de los usuarios
+    - yaml para cargar la configuración
+
+CARGAR la configuración desde el archivo config.yaml
+    ABRIR el archivo config.yaml
+    CARGAR la configuración en la variable 'config'
+
+HABILITAR intents para el bot:
+    - Habilitar intents para permitir que el bot lea y responda a los mensajes de Discord
+
+INICIALIZAR el bot con el prefijo de comando especificado en la configuración y con los intents habilitados
+
+DEFINIR el evento on_ready:
+    - IMPRIMIR un mensaje que confirma que el bot ha iniciado sesión correctamente
+
+DEFINIR la función asíncrona load_extensions():
+    - CREAR una lista de extensiones que incluye los comandos log_expense, delete_expense, list_expenses, update_expense y set_language
+    - PARA cada extensión en la lista:
+        - INTENTAR cargar la extensión
+            - IMPRIMIR un mensaje de éxito si la extensión se carga correctamente
+        - SI ocurre un error, IMPRIMIR un mensaje de error con los detalles
+
+REDEFINIR el evento on_ready para incluir la carga de extensiones:
+    - IMPRIMIR un mensaje que indica que el bot ha iniciado sesión correctamente
+    - LLAMAR a load_extensions() para cargar todas las extensiones de comandos
+
+DEFINIR el comando ping:
+    - CUANDO el usuario escribe `!ping` en el chat, el bot responde con "¡Pong!"
+
+DEFINIR la función asíncrona setup(bot):
+    - VERIFICAR si el Cog SetLanguage no está cargado en el bot
+        - AÑADIR el Cog SetLanguage al bot y mostrar un mensaje de confirmación
+    - SI el Cog ya está cargado, mostrar un mensaje indicando que se omitió
+
+EJECUTAR el bot utilizando el token proporcionado en el archivo de configuración
+
+FIN
+
+```
