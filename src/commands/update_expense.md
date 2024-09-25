@@ -1,3 +1,10 @@
+# update_expense
+
+## Descripción general
+
+## Codigo
+
+```
 # Importa los módulos necesarios del paquete discord.ext para crear comandos bot y la utilidad de base de datos.
 from discord.ext import commands
 from utils.db import update_expense  # Importar la función para actualizar el gasto en la base de datos
@@ -109,3 +116,49 @@ async def setup(bot):
     """
     await bot.add_cog(UpdateExpense(bot))  # Añade el Cog al bot de forma asíncrona.
 
+
+```
+
+## PseudoCodigo
+
+```
+INICIO
+
+IMPORTAR los módulos necesarios:
+    - commands de discord.ext para manejar comandos de Discord
+    - update_expense de utils.db para actualizar los gastos en la base de datos
+    - translate de utils.lang para manejar las respuestas multilingües
+    - user_language de utils.shared para acceder a las preferencias de idioma de los usuarios
+    - yaml para cargar configuraciones
+
+CARGAR la configuración desde el archivo config.yaml
+    ABRIR el archivo config.yaml
+    CARGAR la configuración en la variable 'config'
+
+DEFINIR la clase UpdateExpense como un "Cog" para manejar el comando de actualización de gastos
+    MÉTODO __init__(self, bot):
+        GUARDAR la instancia del bot en un atributo de la clase
+
+    DEFINIR el método update_expense como un comando
+        RECIBIR los parámetros: ctx (contexto del comando), expense_id (ID del gasto a actualizar), 
+        new_amount (nuevo importe) y new_description (nueva descripción)
+
+        OBTENER el idioma preferido del usuario desde user_language o usar el idioma predeterminado de la configuración
+        IMPRIMIR el idioma seleccionado para depuración
+
+        INTENTAR:
+            - ACTUALIZAR el gasto en la base de datos usando la función update_expense
+            - TRADUCIR el mensaje de confirmación utilizando la función translate con los detalles del gasto actualizado
+            - ENVIAR el mensaje traducido al canal de Discord usando ctx.send
+
+        CAPTURAR excepciones en caso de error:
+            - TRADUCIR el mensaje de error utilizando la función translate
+            - ENVIAR el mensaje de error traducido al canal de Discord usando ctx.send
+
+FUNCIÓN asíncrona setup(bot):
+    AÑADIR el Cog UpdateExpense al bot utilizando add_cog
+    ESPERAR a que el Cog sea añadido al bot
+
+FIN
+
+```

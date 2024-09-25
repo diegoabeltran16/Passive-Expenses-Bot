@@ -1,3 +1,11 @@
+# set_language
+
+## Descripción general
+El objetivo principal de este código es permitir a los usuarios establecer su idioma preferido para las respuestas del bot en Discord. El código define un "Cog" llamado SetLanguage que gestiona el comando set_language, lo que permite a los usuarios seleccionar entre inglés ("en") y español ("es"). Este ajuste se guarda en un diccionario compartido, user_language, para ser utilizado por otras partes del bot.
+
+## Codigo
+
+```
 # Importa los módulos necesarios para crear comandos de Discord
 from discord.ext import commands
 from utils.shared import user_language  # Importa el diccionario compartido user_language
@@ -92,3 +100,48 @@ async def setup(bot):
 
 # Declaración de depuración para verificar el diccionario user_language después de importar el módulo compartido
 print(f"user_language dictionary after importing shared module: {user_language}")
+
+
+```
+
+## PseudoCodigo
+
+```
+INICIO
+
+IMPORTAR los módulos necesarios:
+    - commands de discord.ext para manejar comandos de Discord
+    - user_language de utils.shared para acceder y actualizar las preferencias de idioma de los usuarios
+
+DEFINIR la clase SetLanguage como un "Cog" para manejar el comando de configuración de idioma
+    MÉTODO __init__(self, bot):
+        GUARDAR la instancia del bot en un atributo de la clase
+
+    DEFINIR el método set_language como un comando
+        RECIBIR los parámetros: ctx (contexto del comando) y language_code (código del idioma deseado)
+
+        VERIFICAR si language_code es un idioma válido ("en" o "es")
+            SI NO es válido:
+                ENVIAR un mensaje al usuario indicando que las opciones disponibles son "en" y "es"
+                TERMINAR la ejecución del comando
+
+        ACTUALIZAR el diccionario user_language con la preferencia de idioma del usuario
+            ASIGNAR language_code a la clave correspondiente al ID del usuario (ctx.author.id)
+
+        IMPRIMIR un mensaje de depuración confirmando que el idioma del usuario ha sido configurado correctamente
+        IMPRIMIR el contenido actual del diccionario user_language para verificar que la actualización fue correcta
+
+        ENVIAR un mensaje de confirmación al usuario indicando que el idioma ha sido configurado
+
+DEFINIR la función asíncrona setup(bot):
+    VERIFICAR si el bot ya tiene cargado el Cog "SetLanguage"
+        SI NO está cargado:
+            AÑADIR el Cog SetLanguage al bot y mostrar un mensaje de confirmación
+        SI ya está cargado:
+            MOSTRAR un mensaje indicando que la carga fue omitida
+
+IMPRIMIR el contenido actual del diccionario user_language para confirmar que está importado correctamente
+
+FIN
+
+```
