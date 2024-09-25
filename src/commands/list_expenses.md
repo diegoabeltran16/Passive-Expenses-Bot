@@ -1,3 +1,10 @@
+# list_expenses
+
+## Descripción general
+
+## Codigo
+
+```
 # Importar los módulos necesarios
 from discord.ext import commands  # Para la creación de comandos de Discord
 from utils.lang import translate  # Para la función de traducción de mensajes
@@ -111,3 +118,56 @@ async def setup(bot):
     Esta función se llama normalmente cuando el bot se está inicializando para cargar la funcionalidad de este comando.
     """
     await bot.add_cog(ListExpenses(bot))  # Espera la llamada add_cog para añadir este Cog a la instancia del bot.
+
+```
+
+## PseudoCodigo
+
+```
+INICIO
+
+IMPORTAR los módulos necesarios:
+    - commands de discord.ext para manejar comandos de Discord
+    - translate de utils.lang para la funcionalidad de traducción
+    - list_expenses de utils.db para recuperar la lista de gastos desde la base de datos
+    - user_language de utils.shared para acceder a las preferencias de idioma de los usuarios
+    - yaml para la carga de configuraciones
+
+CARGAR la configuración desde el archivo config.yaml
+    ABRIR el archivo config.yaml
+    CARGAR la configuración en la variable 'config'
+
+DEFINIR la clase ListExpenses como un "Cog" para manejar el comando de listar gastos
+    MÉTODO __init__(self, bot):
+        GUARDAR la instancia del bot en un atributo de la clase
+
+    DEFINIR el método list_expenses como un comando
+        RECIBIR el parámetro ctx (contexto del comando)
+
+        OBTENER el idioma preferido del usuario
+            SI el usuario tiene un idioma configurado en user_language:
+                ASIGNAR ese idioma a la variable 'language'
+            DE LO CONTRARIO:
+                ASIGNAR el idioma predeterminado de la configuración (config) a 'language'
+
+        LLAMAR a la función list_expenses() para obtener la lista de gastos
+
+        SI no hay gastos:
+            TRADUCIR el mensaje "no_expenses_found" usando la función translate y el idioma del usuario
+            ENVIAR el mensaje traducido al canal de Discord
+            TERMINAR
+
+        CREAR un mensaje que contenga la cabecera "here_are_your_expenses" traducida al idioma del usuario
+
+        PARA cada gasto en la lista de gastos:
+            AÑADIR los detalles del gasto al mensaje (ID, Amount, Description, Date Added)
+
+        ENVIAR el mensaje completo al canal de Discord
+
+FUNCIÓN asíncrona setup(bot):
+    AÑADIR el Cog ListExpenses al bot utilizando add_cog
+    ESPERAR a que el Cog sea añadido al bot
+
+FIN
+
+```

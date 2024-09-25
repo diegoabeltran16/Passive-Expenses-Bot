@@ -1,3 +1,11 @@
+# log_expense
+
+## Descripción general
+Permitir a los usuarios de un bot de Discord registrar gastos de manera dinámica en una base de datos SQLite. La funcionalidad incluye la gestión de comandos que permiten a los usuarios añadir un gasto con una cantidad y descripción, y recibir una confirmación en su idioma preferido (inglés o español). El código se basa en el uso de Cogs para manejar la lógica de los comandos y asegurar que el bot sea modular y fácil de mantener.
+
+## Codigo
+
+```
 # Importa los módulos necesarios
 from discord.ext import commands
 from utils.lang import translate  # Importa la funcionalidad de traducción
@@ -105,3 +113,52 @@ async def setup(bot):
     Esta función se llama normalmente cuando el bot se está inicializando para cargar la funcionalidad de este comando.
     """
     await bot.add_cog(LogExpense(bot))  # Espera a que el Cog sea añadido a la instancia del bot
+
+```
+
+## Pseudocodigo
+
+```
+INICIO
+
+IMPORTAR los módulos necesarios:
+    - commands de discord.ext para manejar comandos de Discord
+    - translate de utils.lang para la funcionalidad de traducción
+    - db de utils para la interacción con la base de datos
+    - user_language de utils.shared para acceder a las preferencias de idioma de los usuarios
+    - yaml para la carga de configuraciones
+
+CARGAR la configuración desde el archivo config.yaml
+    ABRIR el archivo config.yaml
+    CARGAR la configuración en la variable 'config'
+
+DEFINIR la clase LogExpense como un "Cog" para manejar el comando de registro de gastos
+    MÉTODO __init__(self, bot):
+        GUARDAR la instancia del bot en un atributo de la clase
+
+    DEFINIR el método log_expense como un comando
+        RECIBIR los parámetros: ctx (contexto del comando), amount (cantidad del gasto), y description (descripción del gasto)
+
+        OBTENER el idioma preferido del usuario
+            SI el usuario tiene un idioma configurado en user_language:
+                ASIGNAR ese idioma a la variable 'language'
+            DE LO CONTRARIO:
+                ASIGNAR el idioma predeterminado de la configuración (config) a 'language'
+
+        IMPRIMIR el idioma seleccionado para depuración
+
+        REGISTRAR el gasto en la base de datos llamando a db.add_expense
+            ALMACENAR el ID del nuevo gasto en 'expense_id'
+
+        TRADUCIR el mensaje de confirmación utilizando la función translate
+            PASAR el mensaje clave "expense_logged" y los detalles del gasto a la función translate
+
+        ENVIAR el mensaje traducido al canal de Discord usando ctx.send
+
+FUNCIÓN asíncrona setup(bot):
+    AÑADIR el Cog LogExpense al bot utilizando add_cog
+    ESPERAR a que el Cog sea añadido al bot
+
+FIN
+
+```

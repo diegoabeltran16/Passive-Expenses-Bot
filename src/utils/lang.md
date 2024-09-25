@@ -1,3 +1,11 @@
+# lang
+
+## Descripción general
+Este módulo proporciona un sistema de traducción para el bot, permitiendo que los mensajes se generen en inglés o español según la preferencia del usuario. Incluye un diccionario de traducciones para ambas lenguas y una función translate que obtiene la traducción correcta basada en una clave y el idioma especificado.
+
+## Codigo
+
+```
 # Diccionario de traducción para inglés y español
 translations = {
     "en": {
@@ -49,3 +57,35 @@ def translate(message_key, language="en", **kwargs):
     
     # Retorna el mensaje traducido con los valores formateados
     return message_template.format(**kwargs)
+
+```
+
+## Pseudocodigo
+
+```
+1. Definir el diccionario `translations` con dos idiomas ("en" y "es"):
+   a. Para cada idioma, incluir los siguientes mensajes:
+      - "expense_logged"
+      - "expense_deleted"
+      - "no_expenses_found"
+      - "here_are_your_expenses"
+
+2. Definir la función `translate` que recibe los parámetros `message_key`, `language` (predeterminado a "en"), y `kwargs`.
+
+3. Dentro de la función `translate`:
+   a. Mostrar un mensaje de depuración indicando qué mensaje se va a traducir y a qué idioma.
+   
+   b. Verificar si `language` existe en el diccionario `translations`:
+      i. Si no existe, establecer `language` como "en" (idioma predeterminado).
+
+   c. Obtener la plantilla del mensaje traducido utilizando `translations[language].get(message_key, "")`.
+
+   d. Mostrar un mensaje de depuración con el resultado de la traducción antes de retornarlo.
+
+   e. Retornar el mensaje traducido usando `format(**kwargs)` para reemplazar los valores en la plantilla.
+
+```
+
+
+
+
