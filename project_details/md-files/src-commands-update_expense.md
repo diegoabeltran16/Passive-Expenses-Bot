@@ -1,6 +1,8 @@
 # update_expense
 
-## Descripción general
+## Descripción General
+
+## Pseudo Codigo
 
 ## Codigo
 

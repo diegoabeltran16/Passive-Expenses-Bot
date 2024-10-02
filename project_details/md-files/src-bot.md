@@ -2,6 +2,8 @@
 
 ## Descripción general
 
+## Pseudo Codigo
+
 ## Codigo
 
 ```
