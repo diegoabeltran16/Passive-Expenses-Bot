@@ -1,6 +1,8 @@
 # list_expenses
 
-## Descripción general
+## Descripción General
+
+## Pseudo Codigo
 
 ## Codigo
 
