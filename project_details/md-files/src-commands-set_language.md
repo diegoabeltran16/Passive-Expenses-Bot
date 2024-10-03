@@ -1,7 +1,9 @@
-# set_language
+# src/commands/set_language.py
 
-## Descripción general
+## Descripción General
 El objetivo principal de este código es permitir a los usuarios establecer su idioma preferido para las respuestas del bot en Discord. El código define un "Cog" llamado SetLanguage que gestiona el comando set_language, lo que permite a los usuarios seleccionar entre inglés ("en") y español ("es"). Este ajuste se guarda en un diccionario compartido, user_language, para ser utilizado por otras partes del bot.
+
+## Pseudo Codigo
 
 ## Codigo
 

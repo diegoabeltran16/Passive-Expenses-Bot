@@ -1,6 +1,8 @@
-# delete_expense
+# src/commands/delete_expense.py
 
-## Descripción general
+## Descripción General
+
+## Pseudo Codigo
 
 ## Codigo
 
