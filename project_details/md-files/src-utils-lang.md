@@ -1,4 +1,4 @@
-# lang
+# src/utils/lang.py
 
 ## Descripción general
 Este módulo proporciona un sistema de traducción para el bot, permitiendo que los mensajes se generen en inglés o español según la preferencia del usuario. Incluye un diccionario de traducciones para ambas lenguas y una función translate que obtiene la traducción correcta basada en una clave y el idioma especificado.

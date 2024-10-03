@@ -1,4 +1,4 @@
-# bot
+# src/bot.py
 
 ## Descripción general
 

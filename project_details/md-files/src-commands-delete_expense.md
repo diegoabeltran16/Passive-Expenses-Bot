@@ -1,4 +1,4 @@
-# delete_expense
+# src/commands/delete_expense.py
 
 ## Descripción General
 
