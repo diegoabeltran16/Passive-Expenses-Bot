@@ -1,6 +1,8 @@
-# update_expense
+# src/commands/update_expense.py
 
-## Descripción general
+## Descripción General
+
+## Pseudo Codigo
 
 ## Codigo
 

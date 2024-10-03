@@ -1,6 +1,8 @@
-# list_expenses
+# src/commands/list_expenses.py
 
-## Descripción general
+## Descripción General
+
+## Pseudo Codigo
 
 ## Codigo
 

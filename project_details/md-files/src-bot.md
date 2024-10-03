@@ -1,6 +1,8 @@
-# bot
+# src/bot.py
 
 ## Descripción general
+
+## Pseudo Codigo
 
 ## Codigo
 
