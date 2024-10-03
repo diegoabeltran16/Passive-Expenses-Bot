@@ -1,3 +1,131 @@
+# src/utils/db.py
+
+## General description
+This Python file defines the core database operations for managing expenses and budgets in a SQLite database. It provides helper functions to create, retrieve, update, and delete entries from the expenses and budgets tables. The database operations are used by the Passive Expenses Bot to track user expenses, categorize them, and check against predefined budgets.
+
+## Pseudocode for Each Section 
+
+1. Database Connection Helper
+```
+Function: connect_db()
+
+Establish a connection to the SQLite database (expenses.db).
+Return the connection object for further use.
+```
+
+2. Table Creation
+
+```
+Function: create_expenses_table()
+
+Connect to the database.
+Create the expenses table with the following columns:
+id: Primary key.
+user_id: ID of the user who logged the expense.
+amount: The amount spent.
+description: Description of the expense.
+category: Category of the expense (optional).
+date_added: Timestamp for when the expense was logged.
+Close the database connection.
+Function: create_budgets_table()
+
+Connect to the database.
+Create the budgets table with the following columns:
+id: Primary key.
+user_id: ID of the user setting the budget.
+category: Category the budget applies to.
+limit: Spending limit (escaped as "limit" due to being an SQL keyword).
+period: Budget period (e.g., monthly).
+start_date: The start of the budget period.
+end_date: The end of the budget period.
+Close the database connection.
+```
+
+3. Drop Tables
+```
+Function: drop_tables()
+
+Drop the expenses and budgets tables if they exist.
+Useful for resetting the database schema.
+```
+4. Insert Data
+```
+Function: insert_expense()
+
+Insert a new expense into the expenses table.
+Requires user_id, amount, description, and optionally a category.
+Commit the transaction and close the connection.
+Function: insert_budget()
+
+Insert a new budget into the budgets table.
+Requires user_id, category, limit, period, start_date, and end_date.
+Commit the transaction and close the connection.
+```
+5. Retrieve Data
+```
+Function: get_budget_by_category()
+
+Retrieve a budget for a specific user_id and category.
+Return the result if found; otherwise, return None.
+Function: get_expenses_by_category()
+
+Retrieve all expenses for a specific user_id and category.
+Optionally, filter by start_date and end_date.
+Return the result as a list of expenses.
+
+```
+6. Update Data
+```
+Function: update_budget()
+
+Update the limit of an existing budget by budget_id.
+Commit the transaction and close the connection.
+Function: update_expense_category()
+
+Update the category of an existing expense by expense_id.
+Commit the transaction and close the connection.
+```
+7. Delete Data
+```
+Function: delete_budget()
+
+Delete a budget by its budget_id.
+Commit the transaction and close the connection.
+```
+8. Calculations
+```
+Function: get_total_expenses()
+
+Calculate the total expenses for a specific user_id, category, and period (start_date to end_date).
+Return the total amount spent in the period.
+```
+9. Budget Tracking
+```
+Function: check_budget_status()
+
+Calculate total expenses for a user_id and category in a given period.
+Retrieve the budget for that category.
+Compare the total expenses with the budget limit.
+Return a message indicating whether the user has exceeded their budget or is within it.
+```
+10. Expense Reporting
+```
+Function: generate_expense_report()
+
+Retrieve and group expenses by category for a specific time period.
+Format the data as a readable expense report (text-based).
+Return the formatted report.
+```
+11. Initializa the Tables
+```
+At the end of the file:
+
+Call create_expenses_table() and create_budgets_table() to ensure the tables are created when the bot starts.
+```
+
+## Code
+
+```
 import sqlite3
 
 # Database connection helper function
@@ -230,3 +358,5 @@ def generate_expense_report(user_id, start_date, end_date):
 # Create tables when the bot starts
 create_expenses_table()
 create_budgets_table()
+
+```

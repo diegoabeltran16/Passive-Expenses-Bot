@@ -1,4 +1,4 @@
-# log_expense
+# src/commands/log_expense.py
 
 ## Descripción General
 Permitir a los usuarios de un bot de Discord registrar gastos de manera dinámica en una base de datos SQLite. La funcionalidad incluye la gestión de comandos que permiten a los usuarios añadir un gasto con una cantidad y descripción, y recibir una confirmación en su idioma preferido (inglés o español). El código se basa en el uso de Cogs para manejar la lógica de los comandos y asegurar que el bot sea modular y fácil de mantener.

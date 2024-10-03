@@ -1,4 +1,4 @@
-# list_expenses
+# src/commands/list_expenses.py
 
 ## Descripción General
 
