@@ -1,94 +1,65 @@
-# Importa los módulos necesarios para crear comandos de Discord
+# src/commands/set_language.py
+
 from discord.ext import commands
-from utils.shared import user_language  # Importa el diccionario compartido user_language
+from src.utils.lang import translate
+from src.utils.shared import user_language
+from src.utils.db import connect_db
 
 class SetLanguage(commands.Cog):
     """
-    Un Cog que permite a los usuarios configurar su idioma preferido para las respuestas del bot.
-    
-    Atributos:
-    ----------
-    bot : commands.Bot
-        La instancia del bot de Discord a la que se añade este Cog.
+    A Cog that allows users to set their preferred language for the bot.
     """
-    
+
     def __init__(self, bot):
-        """
-        Constructor que inicializa la instancia del bot.
-        
-        Parámetros:
-        ----------
-        bot : commands.Bot
-            La instancia del bot que utilizará este Cog.
-        """
         self.bot = bot
 
-    @commands.command(name='set_language')
-    async def set_language(self, ctx, language_code: str):
+    @commands.command(name='setlanguage')
+    async def set_language(self, ctx, language: str):
         """
-        Comando que permite a los usuarios establecer su idioma preferido para las respuestas del bot.
-        
-        Parámetros:
-        ----------
-        ctx : commands.Context
-            El contexto en el que se invoca el comando, proporciona información sobre cómo y dónde se utilizó el comando.
-        language_code : str
-            El código del idioma que el usuario desea establecer ("en" para inglés y "es" para español).
-        
-        Comportamiento:
-        --------------
-        - Verifica si el código del idioma es válido. Si no es "en" o "es", envía un mensaje informando las opciones disponibles.
-        - Si el código del idioma es válido, guarda la preferencia de idioma del usuario en el diccionario compartido `user_language`.
-        - Envía un mensaje de confirmación al usuario indicando que el idioma ha sido configurado correctamente.
-        - Imprime mensajes de depuración para confirmar que la preferencia de idioma se ha actualizado correctamente.
-        
-        Ejemplo de uso:
-        --------------
-        El usuario escribe `!set_language es` en el chat de Discord, y el bot responde con:
-        "Language set to es."
+        Command to set the preferred language for a user.
         """
-        # Verificar si el código de idioma es válido
-        if language_code not in ["en", "es"]:
-            await ctx.send("Unsupported language. Available options: en, es")
+        supported_languages = ["en", "es"]
+        user_id = ctx.author.id
+
+        # Validate the language input
+        if language not in supported_languages:
+            await ctx.send(translate("update_failed", language="en", error=f"Unsupported language: {language}"))
             return
 
-        # Guardar la preferencia de idioma del usuario en el diccionario compartido
-        user_language[ctx.author.id] = language_code
-        
-        # Mensajes de depuración para confirmar la actualización
-        print(f"User {ctx.author.id} set language to {language_code}")
-        
-        # Debugging statement to confirm language setting
-        print(f"user_language dictionary after update: {user_language}")
-        
-        # Confirmar al usuario que el idioma ha sido configurado
-        await ctx.send(f"Language set to {language_code}.")
+        # Store the user's preferred language in the shared dictionary
+        user_language[user_id] = language
 
-# Función asíncrona de configuración para añadir el Cog al bot
+        # Optionally, persist language preferences in the database
+        self._update_language_in_db(user_id, language)
+
+        # Provide feedback in the user's new preferred language
+        response = translate("language_set", language=language, language_value=language)
+        await ctx.send(response)
+
+    def _update_language_in_db(self, user_id, language):
+        """
+        Updates the user's preferred language in the database (optional persistence).
+        """
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT * FROM user_language WHERE user_id = ?', (user_id,))
+        existing_record = cursor.fetchone()
+
+        if existing_record:
+            cursor.execute('''
+                UPDATE user_language
+                SET language = ?
+                WHERE user_id = ?
+            ''', (language, user_id))
+        else:
+            cursor.execute('''
+                INSERT INTO user_language (user_id, language)
+                VALUES (?, ?)
+            ''', (user_id, language))
+
+        conn.commit()
+        conn.close()
+
 async def setup(bot):
-    """
-    Añade el Cog SetLanguage al bot de manera asíncrona.
-    
-    Parámetros:
-    ----------
-    bot : commands.Bot
-        La instancia del bot de Discord a la que se añadirá este Cog.
-    
-    Comportamiento:
-    --------------
-    - Verifica si el Cog `SetLanguage` ya está cargado en el bot.
-    - Si no está cargado, lo añade al bot e imprime un mensaje de confirmación.
-    - Si ya está cargado, imprime un mensaje indicando que se omitió la adición.
-    
-    Ejemplo de uso:
-    --------------
-    Esta función se llama normalmente al iniciar el bot para cargar la funcionalidad de este comando.
-    """
-    if not bot.get_cog("SetLanguage"):
-        await bot.add_cog(SetLanguage(bot))
-        print("SetLanguage Cog loaded successfully")
-    else:
-        print("SetLanguage Cog already loaded, skipping.")
-
-# Declaración de depuración para verificar el diccionario user_language después de importar el módulo compartido
-print(f"user_language dictionary after importing shared module: {user_language}")
+    await bot.add_cog(SetLanguage(bot))

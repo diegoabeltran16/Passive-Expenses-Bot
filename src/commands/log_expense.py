@@ -1,8 +1,9 @@
 # Importa los módulos necesarios
 from discord.ext import commands
-from utils.lang import translate  # Importa la funcionalidad de traducción
+from src.utils.lang import translate  # Importa la funcionalidad de traducción
 from utils import db  # Importa las funciones para interactuar con la base de datos
-from utils.shared import user_language  # Importa el diccionario que almacena el idioma preferido de los usuarios
+from src.utils.shared import user_language  # Importa el diccionario que almacena el idioma preferido de los usuarios
+from src.utils.db import connect_db
 
 import yaml
 

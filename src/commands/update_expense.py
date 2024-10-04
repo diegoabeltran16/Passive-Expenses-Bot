@@ -1,8 +1,10 @@
 # Importa los módulos necesarios del paquete discord.ext para crear comandos bot y la utilidad de base de datos.
 from discord.ext import commands
 from utils.db import update_expense  # Importar la función para actualizar el gasto en la base de datos
-from utils.lang import translate  # Importar la función de traducción para respuestas multilingües
-from utils.shared import user_language  # Importar la variable que guarda las preferencias de idioma del usuario
+from src.utils.lang import translate  # Importar la función de traducción para respuestas multilingües
+from src.utils.shared import user_language  # Importar la variable que guarda las preferencias de idioma del usuario
+from src.utils.db import connect_db
+
 import yaml
 
 # Cargar la configuración desde el archivo config.yaml

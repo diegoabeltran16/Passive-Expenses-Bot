@@ -8,7 +8,7 @@ from utils.shared import user_language  # Importa el diccionario compartido de p
 import yaml
 
 # Cargar la configuración desde el archivo config.yaml
-with open("config/config.yaml", 'r') as config_file:
+with open("src/config/config.yaml", 'r') as config_file:
     config = yaml.safe_load(config_file)
 
 # Habilita intents para permitir que el bot gestione eventos como mensajes e interacciones con los usuarios.

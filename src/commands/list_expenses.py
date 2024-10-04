@@ -1,8 +1,10 @@
 # Importar los módulos necesarios
 from discord.ext import commands  # Para la creación de comandos de Discord
-from utils.lang import translate  # Para la función de traducción de mensajes
+from src.utils.lang import translate  # Para la función de traducción de mensajes
 from utils.db import list_expenses  # Importar la función que recupera la lista de gastos de la base de datos
-from utils.shared import user_language  # Importar el diccionario que almacena las preferencias de idioma de los usuarios
+from src.utils.shared import user_language  # Importar el diccionario que almacena las preferencias de idioma de los usuarios
+from src.utils.db import connect_db
+
 import yaml  # Para manejar la carga de archivos de configuración
 
 # Cargar configuración desde config.yaml
