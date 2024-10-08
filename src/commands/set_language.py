@@ -4,16 +4,17 @@ from discord.ext import commands
 from src.utils.lang import translate
 from src.utils.shared import user_language
 from src.utils.db import connect_db
+import logging
+
+# Setup basic logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class SetLanguage(commands.Cog):
-    """
-    A Cog that allows users to set their preferred language for the bot.
-    """
-
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='setlanguage')
+    @commands.command(name='set_language')
     async def set_language(self, ctx, language: str):
         """
         Command to set the preferred language for a user.
@@ -29,8 +30,14 @@ class SetLanguage(commands.Cog):
         # Store the user's preferred language in the shared dictionary
         user_language[user_id] = language
 
-        # Optionally, persist language preferences in the database
-        self._update_language_in_db(user_id, language)
+        # Persist language preferences in the database
+        try:
+            self._update_language_in_db(user_id, language)
+            logger.info(f"User {user_id} set language to {language}")
+        except Exception as e:
+            logger.error(f"Failed to update language in database for user {user_id}: {e}")
+            await ctx.send("There was an error saving your language preference. Please try again later.")
+            return
 
         # Provide feedback in the user's new preferred language
         response = translate("language_set", language=language, language_value=language)
@@ -41,25 +48,30 @@ class SetLanguage(commands.Cog):
         Updates the user's preferred language in the database (optional persistence).
         """
         conn = connect_db()
-        cursor = conn.cursor()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM user_language WHERE user_id = ?', (user_id,))
+            existing_record = cursor.fetchone()
 
-        cursor.execute('SELECT * FROM user_language WHERE user_id = ?', (user_id,))
-        existing_record = cursor.fetchone()
+            if existing_record:
+                cursor.execute('''
+                    UPDATE user_language
+                    SET language = ?
+                    WHERE user_id = ?
+                ''', (language, user_id))
+            else:
+                cursor.execute('''
+                    INSERT INTO user_language (user_id, language)
+                    VALUES (?, ?)
+                ''', (user_id, language))
 
-        if existing_record:
-            cursor.execute('''
-                UPDATE user_language
-                SET language = ?
-                WHERE user_id = ?
-            ''', (language, user_id))
-        else:
-            cursor.execute('''
-                INSERT INTO user_language (user_id, language)
-                VALUES (?, ?)
-            ''', (user_id, language))
-
-        conn.commit()
-        conn.close()
+            conn.commit()
+        except Exception as e:
+            logger.error(f"Error while updating user language in database: {e}")
+            raise
+        finally:
+            conn.close()
 
 async def setup(bot):
+    print("Adding SetLanguage Cog")  # Debug statement to confirm Cog addition
     await bot.add_cog(SetLanguage(bot))

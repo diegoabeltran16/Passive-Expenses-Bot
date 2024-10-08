@@ -1,100 +1,63 @@
-# Importar los módulos necesarios de discord.ext para crear comandos y la utilidad db para eliminar gastos.
+import os
+import sqlite3
 from discord.ext import commands
-from utils.lang import translate  # Importar el módulo de traducción para proporcionar respuestas multilingües
-from utils import db  # Importar el módulo db donde se encuentran sus funciones de base de datos.
-from utils.shared import user_language  # Importar el diccionario user_language para acceder a las preferencias de idioma del usuario
+from src.utils.lang import translate  # Import the translation module for multilingual responses
+from src.utils import db  # Import the db module where database functions are located.
+from src.utils.shared import user_language  # Import user_language dictionary to access user language preferences
 import yaml
 
-# Cargar configuración desde config.yaml
-with open("config/config.yaml", 'r') as config_file:
+# Load configuration from config.yaml
+config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.yaml')
+with open(config_path, 'r') as config_file:
     config = yaml.safe_load(config_file)
 
-# Definir una clase Cog para manejar el comando "delete_expense".
+# Function to initialize the database if it doesn't exist
+def initialize_database(db_path):
+    if not os.path.exists(db_path):
+        conn = sqlite3.connect(db_path)
+        db.create_expenses_table(conn)  # Ensure the table is created
+        conn.close()
+
+# Define a Cog class to handle the "delete_expense" command.
 class DeleteExpense(commands.Cog):
-    """
-    Un Cog que se encarga de borrar un gasto de la base de datos SQLite.
-
-    Atributos:
-    -----------
-    bot : commands.Bot
-        La instancia del bot de Discord a la que se añade este Cog.
-
-    Métodos:
-    --------
-    delete_expense(ctx, expense_id: int):
-        Elimina un gasto por su ID de la base de datos y confirma la eliminación en el canal.
-    """
-
     def __init__(self, bot):
-        """
-        Constructor que inicializa la instancia del bot.
-
-        Parámetros:
-        -----------
-        bot : commands.Bot
-            La instancia del bot que usará este Cog.
-        """
         self.bot = bot
 
     @commands.command(name='delete_expense')
     async def delete_expense(self, ctx, expense_id: int):
         """
-        Un comando que borra un gasto de la base de datos SQLite.
-
-        Este comando permite a los usuarios eliminar un gasto proporcionando su ID único.
-        Tras eliminar el gasto de la base de datos, el bot confirma la acción enviando
-        un mensaje al canal, incluyendo el ID del gasto eliminado.
-
-        Parámetros:
-        -----------
-        ctx : commands.Context
-            El contexto en el que se está invocando el comando, utilizado para interactuar con el usuario y el canal.
-        expense_id : int
-            El ID único del gasto que se va a eliminar.
-
-        Comportamiento:
-        ---------
-        - El bot llama a la función `db.delete_expense()` para borrar el gasto por ID.
-        - Después de eliminar correctamente el gasto, el bot envía un mensaje de confirmación al canal.
-
-        Ejemplo de uso:
-        --------------
-        El usuario escribe el siguiente comando en Discord:
-        !delete_expense 3
-        
-        Si el gasto con ID 3 existe, el bot elimina el gasto y responde:
-        "Expense with ID 3 deleted."
+        A command that deletes an expense from the SQLite database.
         """
-        # Obtener el idioma preferido del usuario, utilizando 'en' como valor predeterminado si no está configurado
+        # Get the user's preferred language, defaulting to 'en' if not set
         user_id = ctx.author.id
-        language = user_language.get(ctx.author.id, config.get("default_language", "en"))
+        language = user_language.get(user_id, config.get("default_language", "en"))
 
-        # Eliminar el gasto especificado de la base de datos
-        db.delete_expense(expense_id)
+        # Generate an absolute path to the database
+        db_directory = os.path.join(os.path.dirname(__file__), "../database")
+        db_path = os.path.join(db_directory, "expenses.db")
 
-        # Utilizar la función de traducción para generar una respuesta en el idioma del usuario
-        response = translate("expense_deleted", language, id=expense_id)
+        # Ensure the directory exists
+        if not os.path.exists(db_directory):
+            os.makedirs(db_directory)
 
-        # Enviar la respuesta traducida al canal de Discord
-        await ctx.send(response)
+        # Initialize the database if needed
+        initialize_database(db_path)
 
-# Función de configuración asíncrona para añadir el Cog al bot.
+        # Connect to the database and delete the expense
+        try:
+            with sqlite3.connect(db_path) as conn:
+                db.delete_expense(conn, expense_id)
+
+                # Use the translation function to generate a response in the user's language
+                response = translate("expense_deleted", language, id=expense_id)
+
+                # Send the translated response to the Discord channel
+                await ctx.send(response)
+
+        except sqlite3.OperationalError as e:
+            print(f"Error: {e}")
+            await ctx.send("Could not open the database. Please try again later.")
+
+# Asynchronous function to add the Cog to the bot.
 async def setup(bot):
-    """
-    Añade el Cog DeleteExpense al bot.
-
-    Parámetros:
-    -----------
-    bot : commands.Bot
-        La instancia de bot a la que se añade este Cog.
-
-    Comportamiento:
-    ---------
-    - Esta función es necesaria para añadir el Cog al bot de forma asíncrona.
-    - Asegura que el Cog está listo y puede responder al comando 'delete_expense'.
-
-    Ejemplo de uso:
-    --------------
-    Esta función se llama normalmente cuando el bot se está inicializando para cargar la funcionalidad de este comando.
-    """
-    await bot.add_cog(DeleteExpense(bot))  # Espera la llamada add_cog para añadir este Cog a la instancia del bot.
+    await bot.add_cog(DeleteExpense(bot))
