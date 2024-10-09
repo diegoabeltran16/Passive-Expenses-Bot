@@ -1,166 +1,244 @@
 # src/commands/update_expense.py
 
-## Descripción General
+## General Description
+The main goal of this code is to define a command (`update_expense`) for a Discord bot that allows users to update an existing expense record in an SQLite database. The command updates the expense's amount and description and provides feedback to the user regarding the operation's success.
 
-## Pseudo Codigo
+## Pseudocode
+```
+1. **Load configuration and setup database**
+   - Load configuration settings from `config.yaml`.
+   - Define a function (`initialize_database`) to create the database if it doesn't exist.
 
-## Codigo
+2. **Define a Cog class (`UpdateExpense`)**
+   - Create a new class (`UpdateExpense`) inheriting from `commands.Cog` to represent the bot command.
+   - Initialize the Cog with the bot instance.
+
+3. **Define the command (`update_expense`)**
+   - Create an asynchronous command (`update_expense`) to handle the update operation.
+   - **Parameters**:
+     - `ctx`: Context of the command invocation.
+     - `expense_id`: ID of the expense to be updated.
+     - `new_amount`: New amount for the expense.
+     - `new_description`: New description for the expense.
+
+4. **Retrieve user language preference**
+   - Use the `user_language` dictionary to get the user's preferred language, or use a default.
+
+5. **Define database directory and path**
+   - Define the directory and path for the database file.
+   - Create the directory if it doesn't exist.
+   - Call `initialize_database` to set up the database if it doesn't already exist.
+
+6. **Update expense in the database**
+   - Connect to the database using `sqlite3.connect()`.
+   - Call the function (`db.update_expense`) to update the specified expense's amount and description.
+
+7. **Send success response**
+   - Translate the success message using the user's language preference.
+   - Send the translated response to the user in the Discord channel.
+
+8. **Handle database errors**
+   - If an error occurs while connecting to or interacting with the database, print the error and send a failure message to the user.
+
+9. **Asynchronous setup function**
+   - Define an async function (`setup`) to add the `UpdateExpense` Cog to the bot.
+
 
 ```
-# Importa los módulos necesarios del paquete discord.ext para crear comandos bot y la utilidad de base de datos.
+
+## Code
+
+```
+import os
+import sqlite3
 from discord.ext import commands
-from utils.db import update_expense  # Importar la función para actualizar el gasto en la base de datos
-from utils.lang import translate  # Importar la función de traducción para respuestas multilingües
-from utils.shared import user_language  # Importar la variable que guarda las preferencias de idioma del usuario
+from src.utils.lang import translate
+from src.utils import db
+from src.utils.shared import user_language
 import yaml
 
-# Cargar la configuración desde el archivo config.yaml
-with open("config/config.yaml", 'r') as config_file:
+# Load configuration from config.yaml
+config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.yaml')
+with open(config_path, 'r') as config_file:
     config = yaml.safe_load(config_file)
 
-# Definir una clase Cog para manejar el comando "update_expense".
+# Function to initialize the database if it doesn't exist
+def initialize_database(db_path):
+    if not os.path.exists(db_path):
+        conn = sqlite3.connect(db_path)
+        db.create_expenses_table(conn)
+        conn.close()
+
 class UpdateExpense(commands.Cog):
-    """
-    Un Cog que se encarga de actualizar los gastos existentes en la base de datos.
-
-    Atributos:
-    -----------
-    bot : commands.Bot
-        La instancia del bot de Discord a la que se añade este Cog.
-    
-    Métodos:
-    --------
-    update_expense(ctx, expense_id: int, new_amount: float, new_description: str):
-        Actualiza un gasto existente en la base de datos a partir de la información introducida por el usuario.
-    """
-
     def __init__(self, bot):
-        """
-        Constructor que inicializa la instancia del bot.
-
-        Parámetros:
-        -----------
-        bot : commands.Bot
-            La instancia del bot que utilizará este Cog.
-        """
         self.bot = bot
 
     @commands.command(name='update_expense')
-    async def update_expense(self, ctx, expense_id: int, new_amount: float, new_description: str):
+    async def update_expense(self, ctx, expense_id: int, new_amount: float, *, new_description: str):
         """
-        Un comando que actualiza un gasto existente en la base de datos SQLite.
-
-        Este comando permite a los usuarios modificar el importe y la descripción de un gasto específico identificado por 
-        su ID de gasto.
-
-        Parámetros:
-        -----------
-        ctx : commands.Context
-            El contexto en el que se está invocando el comando, utilizado para enviar respuestas al usuario.
-        expense_id : int
-            El ID único del gasto a actualizar.
-        new_amount : float
-            El nuevo importe que se asignará al gasto especificado.
-        new_description : str
-            La nueva descripción del gasto.
-
-        Comportamiento:
-        ---------
-        - Intenta actualizar el gasto en la base de datos con el nuevo importe y descripción dados. 
-        - Si tiene éxito, envía un mensaje de confirmación al usuario en su idioma preferido. 
-        - Si se produce un error (por ejemplo, un ID de gasto no válido), envía un mensaje de error traducido.
-        
-        Ejemplo de uso:
-        --------------
-        El usuario escribe el siguiente comando en Discord:
-        !update_expense 3 150.0 "Groceries for the week"
-        Esto actualizará el gasto con ID 3 para que tenga un importe de 150,0 y una descripción de "Groceries for the week".
+        A command that updates an existing expense in the SQLite database.
         """
+        user_id = ctx.author.id
+        language = user_language.get(user_id, config.get("default_language", "en"))
+
+        db_directory = os.path.join(os.path.dirname(__file__), "../database")
+        db_path = os.path.join(db_directory, "expenses.db")
+
+        if not os.path.exists(db_directory):
+            os.makedirs(db_directory)
+
+        initialize_database(db_path)
+
         try:
-            # Obtener el idioma preferido del usuario o el predeterminado de la configuración
-            user_id = ctx.author.id
-            language = user_language.get(user_id, config.get("default_language", "en"))
+            with sqlite3.connect(db_path) as conn:
+                db.update_expense(conn, expense_id, new_amount, new_description)
 
-            # Imprimir el idioma seleccionado para fines de depuración
-            print(f"User {user_id} is using language: {language}")
+                response = translate("expense_updated", language, id=expense_id, amount=new_amount, description=new_description)
+                await ctx.send(response)
 
-            # Intentar actualizar el gasto en la base de datos
-            update_expense(expense_id, new_amount, new_description)
-            
-            # Generar el mensaje de confirmación traducido
-            response = translate("expense_updated", language, id=expense_id, amount=new_amount, description=new_description)
-            
-            # Enviar mensaje de confirmación al usuario
-            await ctx.send(response)
-        except Exception as e:
-            # En caso de error, enviar un mensaje de error traducido
-            error_response = translate("update_failed", language, error=str(e))
-            await ctx.send(error_response)
+        except sqlite3.OperationalError as e:
+            print(f"Error: {e}")
+            await ctx.send("Could not open the database. Please try again later.")
 
-# Función de configuración asíncrona para añadir el Cog al bot
 async def setup(bot):
-    """
-    Añade el Cog UpdateExpense al bot.
-
-    Parámetros:
-    -----------
-    bot : commands.Bot
-        La instancia de bot a la que se añade este Cog.
-
-    Comportamiento:
-    ---------
-    - Esta función es necesaria para añadir el Cog al bot de forma asíncrona. 
-    - Asegura que el Cog está listo y puede responder al comando 'update_expense'.
-
-    Ejemplo de uso:
-    --------------
-    Esta función se llama normalmente cuando el bot se está inicializando.
-    """
-    await bot.add_cog(UpdateExpense(bot))  # Añade el Cog al bot de forma asíncrona.
-
+    await bot.add_cog(UpdateExpense(bot))
 
 ```
 
-## PseudoCodigo
+## Testing 
+tests/test_commands/test_update_expense.py
+
+**Main Goal:**
+The main goal of this code is to test the functionality of the `UpdateExpense` command from a Discord bot, which allows users to update an expense record in the SQLite database. The tests validate both successful updates and error handling for failed database connections.
+
+### Testing Pseudocode
+```
+1. **Import Required Modules**
+   - Import necessary libraries such as `unittest`, `os`, `sqlite3`, and `discord`.
+   - Add the path for proper imports from the `src` directory.
+   - Import the `UpdateExpense` command, `translate` function, `user_language` dictionary, and `create_expenses_table` function.
+
+2. **Define Test Class for UpdateExpense**
+   - Create a test class `TestUpdateExpense` that inherits from `unittest.IsolatedAsyncioTestCase` to allow testing of asynchronous commands.
+
+3. **Setup the Test Bot and Environment**
+   - In `asyncSetUp`:
+     - Initialize a test bot with command prefix `!` and set up the `UpdateExpense` cog.
+     - Create a mock context (`ctx`) object for simulating Discord command invocations.
+     - Set up an in-memory database for testing purposes.
+     - Create an `expenses` table in the database to store expenses.
+
+4. **Tear Down After Tests**
+   - In `asyncTearDown`:
+     - Close the in-memory database connection.
+
+5. **Test Successful Expense Update**
+   - Patch the `user_language` dictionary to mock the user's language preference.
+   - Insert a mock expense into the in-memory database.
+   - Retrieve the inserted expense's ID for the update test.
+   - Call the `update_expense` command to update the expense with new values.
+   - Construct the expected response message based on the updated data.
+   - Assert that the bot sends the correct response message.
+
+6. **Test Database Error During Update**
+   - Patch the `user_language` dictionary to mock the user's language preference.
+   - Simulate a database connection failure by setting a side effect for `sqlite3.connect`.
+   - Call the `update_expense` command, which should fail due to the simulated error.
+   - Assert that the bot sends an appropriate error message indicating the database issue.
+
+7. **Run the Tests**
+   - Execute the test cases when the script is run directly.
 
 ```
-INICIO
 
-IMPORTAR los módulos necesarios:
-    - commands de discord.ext para manejar comandos de Discord
-    - update_expense de utils.db para actualizar los gastos en la base de datos
-    - translate de utils.lang para manejar las respuestas multilingües
-    - user_language de utils.shared para acceder a las preferencias de idioma de los usuarios
-    - yaml para cargar configuraciones
+### Testing Code
+```
+import unittest
+import sys
+import os
+import sqlite3
+import discord
+from unittest.mock import MagicMock, AsyncMock, patch
+from discord.ext import commands
 
-CARGAR la configuración desde el archivo config.yaml
-    ABRIR el archivo config.yaml
-    CARGAR la configuración en la variable 'config'
+# Add the correct path for imports to include the src directory
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
 
-DEFINIR la clase UpdateExpense como un "Cog" para manejar el comando de actualización de gastos
-    MÉTODO __init__(self, bot):
-        GUARDAR la instancia del bot en un atributo de la clase
+from commands.update_expense import UpdateExpense
+from utils.lang import translate
+from utils.shared import user_language
+from utils.db import create_expenses_table
 
-    DEFINIR el método update_expense como un comando
-        RECIBIR los parámetros: ctx (contexto del comando), expense_id (ID del gasto a actualizar), 
-        new_amount (nuevo importe) y new_description (nueva descripción)
+class TestUpdateExpense(unittest.IsolatedAsyncioTestCase):
 
-        OBTENER el idioma preferido del usuario desde user_language o usar el idioma predeterminado de la configuración
-        IMPRIMIR el idioma seleccionado para depuración
+    async def asyncSetUp(self):
+        """
+        Set up a test bot and update expense cog before each test.
+        """
+        intents = discord.Intents.default()
+        self.bot = commands.Bot(command_prefix="!", intents=intents)
+        self.update_expense_cog = UpdateExpense(self.bot)
+        await self.bot.add_cog(self.update_expense_cog)
+        self.ctx = MagicMock()
+        self.ctx.author.id = 1
+        self.ctx.send = AsyncMock()
 
-        INTENTAR:
-            - ACTUALIZAR el gasto en la base de datos usando la función update_expense
-            - TRADUCIR el mensaje de confirmación utilizando la función translate con los detalles del gasto actualizado
-            - ENVIAR el mensaje traducido al canal de Discord usando ctx.send
+        # Set up an in-memory database for testing
+        self.mock_conn = sqlite3.connect(':memory:')
+        
+        # Create the expenses table in the in-memory database
+        create_expenses_table(self.mock_conn)
 
-        CAPTURAR excepciones en caso de error:
-            - TRADUCIR el mensaje de error utilizando la función translate
-            - ENVIAR el mensaje de error traducido al canal de Discord usando ctx.send
+    async def asyncTearDown(self):
+        """
+        Clean up after each test.
+        """
+        self.mock_conn.close()
 
-FUNCIÓN asíncrona setup(bot):
-    AÑADIR el Cog UpdateExpense al bot utilizando add_cog
-    ESPERAR a que el Cog sea añadido al bot
+    @patch('utils.shared.user_language', new_callable=dict)
+    async def test_update_expense_success(self, mock_user_language):
+        """
+        Test updating an expense successfully.
+        """
+        # Set the user's language preference
+        mock_user_language[1] = "en"
 
-FIN
+        # Insert a mock expense into the database
+        cursor = self.mock_conn.cursor()
+        cursor.execute('''
+            INSERT INTO expenses (user_id, amount, description, category, date_added)
+            VALUES (?, ?, ?, ?, datetime('now'))
+        ''', (1, 50.0, "Grocery shopping", "Groceries"))
+        self.mock_conn.commit()
 
+        # Retrieve the inserted expense ID for updating
+        cursor.execute("SELECT id FROM expenses WHERE user_id = ?", (1,))
+        expense_id = cursor.fetchone()[0]
+
+        # Call the command to update the expense
+        await self.update_expense_cog.update_expense(self.ctx, expense_id, 100.0, new_description="Updated description")
+
+        # Construct the expected response
+        expected_message = translate("expense_updated", language="en", id=expense_id, amount=100.0, description="Updated description")
+
+        # Check if the response was sent correctly
+        self.ctx.send.assert_called_with(expected_message)
+
+    @patch('utils.shared.user_language', new_callable=dict)
+    async def test_update_expense_db_error(self, mock_user_language):
+        """
+        Test updating an expense when the database connection fails.
+        """
+        mock_user_language[1] = "en"
+
+        # Simulate a database connection failure by setting side_effect
+        with patch('sqlite3.connect', side_effect=sqlite3.OperationalError("Unable to connect to the database")):
+            # Call the command to update an expense
+            await self.update_expense_cog.update_expense(self.ctx, 1, 100.0, new_description="Should fail")
+
+            # Check if the error message was sent
+            self.ctx.send.assert_called_with("Could not open the database. Please try again later.")
+
+if __name__ == '__main__':
+    unittest.main()
 ```
