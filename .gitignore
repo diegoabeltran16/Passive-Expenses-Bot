@@ -1,2 +1,22 @@
 # Ignore the config file
 src/config/config.yaml
+
+# Ignore the SQLite database file
+src/database/expenses.db
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore environment files
+.env
+*.env
+
+# Ignore SQLite database file
+src/database/expenses.db
+
+# Ignore logs
+*.log
+
+# Ignore IDE-specific settings (e.g., for VS Code)
+.vscode/
