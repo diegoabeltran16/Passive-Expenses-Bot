@@ -14,7 +14,7 @@ class SetLanguage(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='set_language')
+    @commands.command(name='set_language', aliases=['ajustar_gasto'])
     async def set_language(self, ctx, language: str):
         """
         Command to set the preferred language for a user.

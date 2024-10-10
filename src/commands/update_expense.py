@@ -22,7 +22,7 @@ class UpdateExpense(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='update_expense')
+    @commands.command(name='update_expense', aliases=['actualizar_gasto'])
     async def update_expense(self, ctx, expense_id: int, new_amount: float, *, new_description: str):
         """
         A command that updates an existing expense in the SQLite database.

@@ -26,7 +26,7 @@ class LogExpense(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='log_expense')
+    @commands.command(name='log_expense', aliases=['ingresar_gasto'])
     async def log_expense(self, ctx, amount: float, *, description: commands.clean_content, conn=None):
         """
         Command to log a new expense into the SQLite database.

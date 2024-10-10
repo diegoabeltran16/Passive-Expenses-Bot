@@ -22,7 +22,7 @@ class ListExpenses(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='list_expenses')
+    @commands.command(name='list_expenses', aliases=['listar_gastos'])
     async def list_expenses(self, ctx, conn=None):
         """
         A command that lists all expenses from the SQLite database and sends them to the Discord channel.
