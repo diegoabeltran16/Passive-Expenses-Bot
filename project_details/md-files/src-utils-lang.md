@@ -1,12 +1,37 @@
 # src/utils/lang.py
 
-## Descripción general
-Este módulo proporciona un sistema de traducción para el bot, permitiendo que los mensajes se generen en inglés o español según la preferencia del usuario. Incluye un diccionario de traducciones para ambas lenguas y una función translate que obtiene la traducción correcta basada en una clave y el idioma especificado.
+## General Description
+The main goal of this script is to provide a multilingual translation system for a bot, allowing it to support multiple languages when generating responses. It contains a dictionary of translation templates for different messages in English and Spanish, and a function that retrieves and formats these messages based on the user-specified language and message parameters.
 
-## Codigo
+## Pseudocode
+```
+1. **Define a Translation Dictionary**
+   - Create a dictionary named `translations`.
+   - Define keys for supported languages (e.g., "en" for English, "es" for Spanish).
+   - Store translation templates for various messages like "expense_logged", "expense_deleted", etc.
+   - Each template contains placeholders (e.g., `{id}`, `{amount}`) for formatting.
+
+2. **Function to Retrieve Translated Message**
+   - Define a function named `translate` that takes the following parameters:
+     - `message_key`: The key representing the message to translate.
+     - `language`: The language in which the message should be translated (default is "en").
+     - `**kwargs`: Additional arguments used to format the message placeholders.
+   - **Log the Translation Request**
+     - Print a log statement for debugging purposes that shows which message is being translated to which language, along with values to be formatted.
+   - **Check if the Language is Supported**
+     - If the provided language is not available in the `translations` dictionary, default to English.
+   - **Retrieve and Format the Message**
+     - Use the `message_key` to get the appropriate message template from the `translations` dictionary for the specified language.
+     - Format the message using `**kwargs` to replace placeholders.
+   - **Return the Translated Message**
+```
+
+## Code
 
 ```
-# Diccionario de traducción para inglés y español
+# lang.py
+
+# Translation dictionary for supported languages
 translations = {
     "en": {
         "expense_logged": "Expense logged with ID {id}: {amount} for {description}.",
@@ -14,7 +39,14 @@ translations = {
         "no_expenses_found": "No expenses found.",
         "here_are_your_expenses": "Here are your expenses:",
         "expense_updated": "Expense with ID {id} has been updated with amount {amount} and description '{description}'.",
-        "update_failed": "Failed to update expense: {error}"
+        "update_failed": "Failed to update expense: {error}",
+        "language_set": "Language has been set to {language_value}.",  # Updated placeholder name
+        "report_generated": "Expense report for {start_date} to {end_date}:",
+        "category_total": "- {category}: {total_spent}",
+        "no_report_data": "No expenses found for the given period.",
+        "budget_exceeded": "You have exceeded your budget for {category}! Total spent: {total_spent}, Budget: {budget}.",
+        "within_budget": "You are within your budget for {category}. Total spent: {total_spent}, Budget: {budget}.",
+        "no_budget_set": "No budget set for this category."
     },
     "es": {
         "expense_logged": "Gasto registrado con ID {id}: {amount} por {description}.",
@@ -22,113 +54,96 @@ translations = {
         "no_expenses_found": "No se encontraron gastos.",
         "here_are_your_expenses": "Aquí están tus gastos:",
         "expense_updated": "Gasto con ID {id} se ha actualizado con la cantidad {amount} y descripción '{description}'.",
-        "update_failed": "No se pudo actualizar el gasto: {error}"
+        "update_failed": "No se pudo actualizar el gasto: {error}",
+        "language_set": "El idioma ha sido establecido a {language_value}.",  # Updated placeholder name
+        "report_generated": "Informe de gastos desde {start_date} hasta {end_date}:",
+        "category_total": "- {category}: {total_spent}",
+        "no_report_data": "No se encontraron gastos para el periodo dado.",
+        "budget_exceeded": "Has excedido tu presupuesto para {category}! Total gastado: {total_spent}, Presupuesto: {budget}.",
+        "within_budget": "Estás dentro de tu presupuesto para {category}. Total gastado: {total_spent}, Presupuesto: {budget}.",
+        "no_budget_set": "No se ha establecido un presupuesto para esta categoría."
     }
 }
 
-# Función para traducir mensajes con soporte de valores dinámicos
+# Function to retrieve the translated message
 def translate(message_key, language="en", **kwargs):
-    """
-    Traduce un mensaje basado en la clave proporcionada y el idioma especificado.
-
-    Esta función busca la traducción correspondiente a la clave `message_key` en el idioma indicado por `language`.
-    Si la traducción no se encuentra para el idioma especificado, se utilizará el inglés ("en") como idioma predeterminado.
-    En caso de que la clave de traducción no esté presente en el diccionario, la función retornará un mensaje de
-    advertencia para indicar que la traducción no fue encontrada.
-
-    Parámetros:
-    -----------
-    message_key : str
-        La clave que identifica el mensaje en el diccionario de traducción.
-    language : str, opcional
-        El idioma al que se desea traducir el mensaje. Por defecto es "en" (inglés).
-    kwargs : dict
-        Cualquier valor adicional que se necesite para formatear la cadena traducida (por ejemplo, 'amount', 
-        'description', 'id', etc.).
-
-    Retorna:
-    --------
-    str
-        El mensaje traducido y formateado con los valores proporcionados. Si la clave de traducción no se encuentra,
-        retorna un mensaje indicando que la traducción no está disponible.
-
-    Ejemplo de uso:
-    ---------------
-    translate("expense_logged", "es", id=1, amount=100.0, description="Compra de supermercado")
-    -> "Gasto registrado con ID 1: 100.0 por Compra de supermercado"
-    """
-    # Mensaje de depuración para verificar que la función de traducción está siendo invocada
-    print(f"Traduciendo '{message_key}' al idioma '{language}' con los valores {kwargs}")
-
-    # Verifica si el idioma solicitado está en el diccionario de traducciones
+    print(f"Translating '{message_key}' to '{language}' with values {kwargs}")
     if language not in translations:
-        language = "en"  # Si el idioma no está soportado, se utiliza inglés por defecto
-
-    # Obtiene la plantilla de mensaje para la clave y el idioma especificados
-    message_template = translations[language].get(message_key, None)
-
-    # Verifica si la plantilla de mensaje existe
-    if not message_template:
-        # Mensaje de advertencia si la clave de traducción no se encuentra
-        print(f"Clave de traducción '{message_key}' no encontrada. Usando un mensaje por defecto.")
-        return f"Traducción para '{message_key}' no encontrada."
-
-    # Mensaje de depuración para confirmar la traducción que se va a retornar
-    print(f"Resultado de la traducción: {message_template.format(**kwargs)}")
-
-    # Retorna el mensaje traducido con los valores formateados
+        language = "en"
+    message_template = translations[language].get(message_key, "")
     return message_template.format(**kwargs)
 
+```
+## Testing 
+tests/test_lang.py
 
+**Main Goal:**
+The main goal of this code is to test the functionality of the `translate` function, which is responsible for providing translations for different messages in English and Spanish. The tests ensure that the `translate` function works as expected for valid translations and handles invalid keys appropriately.
+
+### Testing Pseudocode
+```
+1. Import the necessary modules:
+    - Import `unittest` for testing framework.
+    - Import `sys` and `os` to manipulate system paths.
+    - Import `translate` from `utils.lang` to be tested.
+
+2. Define a class `TestTranslation` that inherits from `unittest.TestCase`.
+
+3. Define the method `test_translation_to_english` to verify English translations:
+    - Call `translate` with parameters:
+        - message_key: "expense_logged"
+        - language: "en"
+        - id: 1, amount: 100, description: "Lunch"
+    - Assert that the result matches the expected English message: 
+      "Expense logged with ID 1: 100 for Lunch."
+
+4. Define the method `test_translation_to_spanish` to verify Spanish translations:
+    - Call `translate` with parameters:
+        - message_key: "expense_logged"
+        - language: "es"
+        - id: 1, amount: 100, description: "Almuerzo"
+    - Assert that the result matches the expected Spanish message:
+      "Gasto registrado con ID 1: 100 por Almuerzo."
+
+5. Define the method `test_invalid_translation_key` to verify handling of invalid translation keys:
+    - Call `translate` with parameters:
+        - message_key: "invalid_key"
+        - language: "en"
+    - Assert that the result is an empty string, indicating no matching translation found.
+
+6. Run the test cases using `unittest.main()` to execute the defined test cases when the script is run.
 ```
 
-## Pseudocodigo
+### Testing Code
+```
+import unittest
+import sys
+import os
+
+# Add the 'src' directory to the system path
+sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
+
+from utils.lang import translate
+
+class TestTranslation(unittest.TestCase):
+
+    def test_translation_to_english(self):
+        """Test translating a message to English."""
+        result = translate("expense_logged", "en", id=1, amount=100, description="Lunch")
+        self.assertEqual(result, "Expense logged with ID 1: 100 for Lunch.")
+
+    def test_translation_to_spanish(self):
+        """Test translating a message to Spanish."""
+        result = translate("expense_logged", "es", id=1, amount=100, description="Almuerzo")
+        self.assertEqual(result, "Gasto registrado con ID 1: 100 por Almuerzo.")
+
+    def test_invalid_translation_key(self):
+        """Test handling of invalid translation keys."""
+        result = translate("invalid_key", "en")
+        self.assertEqual(result, "")
+
+
+if __name__ == '__main__':
+    unittest.main()
 
 ```
-# Definir el diccionario de traducción para los idiomas inglés y español
-# Cada idioma tiene claves de mensaje con sus traducciones correspondientes
-crear diccionario "translations" que contenga:
-    "en" (inglés):
-        "expense_logged": "Mensaje de gasto registrado con ID, cantidad y descripción."
-        "expense_deleted": "Mensaje de gasto eliminado por ID."
-        "no_expenses_found": "Mensaje de que no se encontraron gastos."
-        "here_are_your_expenses": "Mensaje indicando que se listarán los gastos."
-        "expense_updated": "Mensaje confirmando que un gasto ha sido actualizado con cantidad y descripción."
-        "update_failed": "Mensaje indicando que la actualización del gasto falló con el error correspondiente."
-    "es" (español):
-        "expense_logged": "Mensaje de gasto registrado con ID, cantidad y descripción en español."
-        "expense_deleted": "Mensaje de gasto eliminado por ID en español."
-        "no_expenses_found": "Mensaje de que no se encontraron gastos en español."
-        "here_are_your_expenses": "Mensaje indicando que se listarán los gastos en español."
-        "expense_updated": "Mensaje confirmando que un gasto ha sido actualizado con cantidad y descripción en español."
-        "update_failed": "Mensaje indicando que la actualización del gasto falló con el error correspondiente en español."
-
-# Definir la función para traducir mensajes basada en el idioma y las claves de mensaje
-definir función "translate" con parámetros (message_key, language="en", **kwargs):
-    # Imprimir un mensaje de depuración para mostrar los valores que se intentan traducir
-    imprimir "Traduciendo la clave de mensaje con el idioma y los valores específicos proporcionados"
-    
-    # Verificar si el idioma especificado está en el diccionario de traducciones
-    si el idioma no está en el diccionario "translations":
-        establecer idioma a "en"  # Usar inglés como idioma predeterminado si el idioma solicitado no es soportado
-    
-    # Obtener la plantilla de mensaje correspondiente al idioma y la clave de mensaje
-    obtener "message_template" de "translations[language]" usando "message_key"
-    
-    # Verificar si la plantilla de mensaje existe
-    si "message_template" es nulo o no encontrado:
-        imprimir "Clave de traducción no encontrada. Usando un mensaje por defecto."
-        retornar "Mensaje indicando que la traducción no fue encontrada para esa clave"
-    
-    # Imprimir un mensaje de depuración mostrando el resultado de la traducción
-    imprimir "Resultado de la traducción con los valores proporcionados formateados"
-
-    # Retornar la plantilla de mensaje formateada con los valores específicos proporcionados en kwargs
-    retornar "message_template" formateada con "kwargs"
-
-
-```
-
-
-
-

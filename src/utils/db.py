@@ -1,232 +1,205 @@
 import sqlite3
 
-# Database connection helper function
 def connect_db():
-    """Establishes a connection to the SQLite database."""
-    return sqlite3.connect('expenses.db')
+    """
+    Establishes a connection to the SQLite database and creates necessary tables if they don't exist.
+    Returns the database connection object.
+    """
+    try:
+        conn = sqlite3.connect('src/database/expenses.db')
+        create_expenses_table(conn)
+        create_budgets_table(conn)
+        create_user_language_table(conn)
+        return conn
+    except sqlite3.Error as e:
+        print(f"Error connecting to the database: {e}")
+        return None
 
-# Create the expenses table if it doesn't exist
-def create_expenses_table():
+def create_expenses_table(conn):
     """Creates the 'expenses' table in the database if it doesn't already exist."""
-    conn = connect_db()
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                amount REAL NOT NULL,
+                description TEXT NOT NULL,
+                category TEXT,
+                date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error creating expenses table: {e}")
+        conn.rollback()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS expenses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,  -- Add user_id column here
-            amount REAL NOT NULL,
-            description TEXT NOT NULL,
-            category TEXT,
-            date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
-    conn.commit()
-    conn.close()
-
-# Create the budgets table
-def create_budgets_table():
+def create_budgets_table(conn):
     """Creates the 'budgets' table in the database if it doesn't already exist."""
-    conn = connect_db()
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS budgets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                category TEXT NOT NULL,
+                "limit" REAL NOT NULL,
+                period TEXT NOT NULL,
+                start_date TIMESTAMP NOT NULL,
+                end_date TIMESTAMP NOT NULL
+            )
+        ''')
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error creating budgets table: {e}")
+        conn.rollback()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS budgets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            category TEXT NOT NULL,
-            "limit" REAL NOT NULL,  -- Escape 'limit' keyword here
-            period TEXT NOT NULL,
-            start_date TIMESTAMP NOT NULL,
-            end_date TIMESTAMP NOT NULL
-        )
-    ''')
+def create_user_language_table(conn):
+    """Creates the 'user_language' table in the database if it doesn't already exist."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_language (
+                user_id INTEGER PRIMARY KEY,
+                language TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error creating user_language table: {e}")
+        conn.rollback()
 
-    conn.commit()
-    conn.close()
-
-# Drop tables
-def drop_tables():
-    """Drops the expenses and budgets tables if they exist."""
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute('DROP TABLE IF EXISTS expenses')
-    cursor.execute('DROP TABLE IF EXISTS budgets')
-
-    conn.commit()
-    conn.close()
-
-# Insert a new expense
-def insert_expense(user_id, amount, description, category=None):
+def insert_expense(conn, user_id, amount, description, category=None):
     """Inserts a new expense into the 'expenses' table."""
-    conn = connect_db()
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO expenses (user_id, amount, description, category)
+            VALUES (?, ?, ?, ?)
+        ''', (user_id, amount, description, category))
+        conn.commit()
+        return cursor.lastrowid  # Return the ID of the newly inserted expense
+    except sqlite3.Error as e:
+        print(f"Error inserting expense: {e}")
+        conn.rollback()
+        return None
 
-    cursor.execute('''
-        INSERT INTO expenses (user_id, amount, description, category)
-        VALUES (?, ?, ?, ?)
-    ''', (user_id, amount, description, category))
+def delete_expense(conn, expense_id):
+    """Deletes an expense by its ID."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            DELETE FROM expenses WHERE id = ?
+        ''', (expense_id,))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error deleting expense: {e}")
+        conn.rollback()
 
-    conn.commit()
-    conn.close()
+def update_expense(conn, expense_id, new_amount, new_description):
+    """Updates the amount and description of an existing expense."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE expenses
+            SET amount = ?, description = ?
+            WHERE id = ?
+        ''', (new_amount, new_description, expense_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error updating expense: {e}")
+        conn.rollback()
 
-# Insert a new budget
-def insert_budget(user_id, category, limit, period, start_date, end_date):
-    """Inserts a new budget into the 'budgets' table."""
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute('''
-        INSERT INTO budgets (user_id, category, "limit", period, start_date, end_date)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (user_id, category, limit, period, start_date, end_date))
-
-    conn.commit()
-    conn.close()
-
-# Retrieve a budget by category for a user
-def get_budget_by_category(user_id, category):
-    """Retrieves the budget for a specific category and user."""
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute('''
-        SELECT * FROM budgets WHERE user_id = ? AND category = ?
-    ''', (user_id, category))
-
-    budget = cursor.fetchone()
-    conn.close()
-
-    return budget
-
-# Update an existing budget
-def update_budget(budget_id, new_limit):
-    """Updates the limit of an existing budget."""
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute('''
-        UPDATE budgets
-        SET "limit" = ?  -- Escape the 'limit' keyword here
-        WHERE id = ?
-    ''', (new_limit, budget_id))
-
-    conn.commit()
-    conn.close()
-
-
-# Delete a budget by its ID
-def delete_budget(budget_id):
-    """Deletes a budget by its ID."""
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute('DELETE FROM budgets WHERE id = ?', (budget_id,))
-    conn.commit()
-    conn.close()
-
-# Update the category of an existing expense
-def update_expense_category(expense_id, category):
+def update_expense_category(conn, expense_id, category):
     """Updates the category of an existing expense."""
-    conn = connect_db()
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE expenses
+            SET category = ?
+            WHERE id = ?
+        ''', (category, expense_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error updating expense category: {e}")
+        conn.rollback()
 
-    cursor.execute('''
-        UPDATE expenses
-        SET category = ?
-        WHERE id = ?
-    ''', (category, expense_id))
+def get_expenses_by_user(conn, user_id):
+    """Retrieves all expenses for a specific user."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM expenses WHERE user_id = ?
+        ''', (user_id,))
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error retrieving expenses: {e}")
+        return []
 
-    conn.commit()
-    conn.close()
-
-# Retrieve expenses by category
-def get_expenses_by_category(user_id, category, start_date=None, end_date=None):
+def get_expenses_by_category(conn, user_id, category, start_date=None, end_date=None):
     """Retrieves all expenses by category for a specific user."""
-    conn = connect_db()
-    cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
+        query = 'SELECT * FROM expenses WHERE category = ? AND user_id = ?'
+        params = [category, user_id]
 
-    query = 'SELECT * FROM expenses WHERE category = ? AND user_id = ?'
-    params = [category, user_id]
+        if start_date and end_date:
+            query += ' AND date_added BETWEEN ? AND ?'
+            params.extend([start_date, end_date])
 
-    # Filter by date range if provided
-    if start_date and end_date:
-        query += ' AND date_added BETWEEN ? AND ?'
-        params.extend([start_date, end_date])
+        cursor.execute(query, params)
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error retrieving expenses by category: {e}")
+        return []
 
-    cursor.execute(query, params)
-    expenses = cursor.fetchall()
-    conn.close()
+def list_expenses(conn, user_id):
+    """Lists all expenses for a specific user."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM expenses WHERE user_id = ?
+        ''', (user_id,))
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error listing expenses: {e}")
+        return []
 
-    return expenses
+def insert_budget(conn, user_id, category, limit, period, start_date, end_date):
+    """Inserts a new budget into the 'budgets' table."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO budgets (user_id, category, "limit", period, start_date, end_date)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (user_id, category, limit, period, start_date, end_date))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error inserting budget: {e}")
+        conn.rollback()
 
-# Calculate total expenses for a category in a given period
-def get_total_expenses(user_id, category, start_date, end_date):
-    """Calculates the total expenses for a given category and period."""
-    conn = connect_db()
-    cursor = conn.cursor()
+def get_budget_by_category(conn, user_id, category):
+    """Retrieves the budget for a specific category and user."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM budgets WHERE user_id = ? AND category = ?
+        ''', (user_id, category))
+        return cursor.fetchone()
+    except sqlite3.Error as e:
+        print(f"Error retrieving budget: {e}")
+        return None
 
-    query = '''
-        SELECT SUM(amount) FROM expenses
-        WHERE user_id = ? AND category = ? AND date_added BETWEEN ? AND ?
-    '''
-    cursor.execute(query, (user_id, category, start_date, end_date))
-
-    total = cursor.fetchone()[0]
-    conn.close()
-
-    # If there are no expenses, return 0 instead of None
-    return total if total else 0.0
-
-# Check if expenses exceed the budget
-def check_budget_status(user_id, category, start_date, end_date):
-    """Checks if the total expenses exceed the budget for a category in a given period."""
-    # Get the total expenses for the category
-    total_expenses = get_total_expenses(user_id, category, start_date, end_date)
-
-    # Retrieve the budget for the category
-    budget = get_budget_by_category(user_id, category)
-    if not budget:
-        return "No budget set for this category."
-
-    budget_limit = budget[3]  # The 4th item in the budget tuple is the limit (amount)
-    
-    # Compare the total expenses to the budget limit
-    if total_expenses > budget_limit:
-        return f"You have exceeded your budget for {category}! Total spent: {total_expenses}, Budget: {budget_limit}"
-    else:
-        return f"You are within your budget for {category}. Total spent: {total_expenses}, Budget: {budget_limit}"
-
-# Generate an expense report for a given period
-def generate_expense_report(user_id, start_date, end_date):
-    """Generates an expense report for a specific period."""
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    query = '''
-        SELECT category, SUM(amount) as total_spent
-        FROM expenses
-        WHERE user_id = ? AND date_added BETWEEN ? AND ?
-        GROUP BY category
-    '''
-    cursor.execute(query, (user_id, start_date, end_date))
-
-    report = cursor.fetchall()
-    conn.close()
-
-    if not report:
-        return "No expenses found for the given period."
-
-    # Format the report
-    report_lines = [f"Expense report for {start_date} to {end_date}:"]
-    for row in report:
-        category, total_spent = row
-        report_lines.append(f"- {category}: {total_spent}")
-
-    return "\n".join(report_lines)
-
-# Create tables when the bot starts
-create_expenses_table()
-create_budgets_table()
+def update_budget(conn, budget_id, new_limit):
+    """Updates the limit of an existing budget."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE budgets
+            SET "limit" = ?
+            WHERE id = ?
+        ''', (new_limit, budget_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error updating budget: {e}")
+        conn.rollback()
