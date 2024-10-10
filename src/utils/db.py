@@ -1,174 +1,205 @@
-# Importa el módulo sqlite3 para interactuar con la base de datos SQLite.
 import sqlite3
 
-# Conéctese a la base de datos SQLite (creará el archivo si no existe)
 def connect_db():
     """
-    Establecer una conexión con la base de datos SQLite.
-
-    Esta función se conecta a la base de datos 'gastos.db'. Si el archivo no existe,
-    SQLite lo creará en el directorio de trabajo actual.
-
-    Devuelve:
-    --------
-    sqlite3.Connection:
-        Un objeto de conexión para interactuar con la base de datos SQLite.
-
-    Ejemplo de uso:
-    --------------
-    conn = connect_db()
-    cursor = conn.cursor()
+    Establishes a connection to the SQLite database and creates necessary tables if they don't exist.
+    Returns the database connection object.
     """
-    return sqlite3.connect('expenses.db')
+    try:
+        conn = sqlite3.connect('src/database/expenses.db')
+        create_expenses_table(conn)
+        create_budgets_table(conn)
+        create_user_language_table(conn)
+        return conn
+    except sqlite3.Error as e:
+        print(f"Error connecting to the database: {e}")
+        return None
 
-# Inicializar la tabla de gastos
-def create_expenses_table():
-    """
-    Crear la tabla 'gastos' si aún no existe.
+def create_expenses_table(conn):
+    """Creates the 'expenses' table in the database if it doesn't already exist."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                amount REAL NOT NULL,
+                description TEXT NOT NULL,
+                category TEXT,
+                date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error creating expenses table: {e}")
+        conn.rollback()
 
-    Esta función inicializa la tabla 'gastos' con los siguientes campos:
-    - id: Un entero que se autoincrementa y sirve como clave primaria.
-    - amount: Un número de coma flotante que representa el importe del gasto.
-    - description: Campo de texto que describe el gasto.
-    - date_added: Una marca de tiempo para cuando se añadió el gasto (por defecto: marca de tiempo actual).
+def create_budgets_table(conn):
+    """Creates the 'budgets' table in the database if it doesn't already exist."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS budgets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                category TEXT NOT NULL,
+                "limit" REAL NOT NULL,
+                period TEXT NOT NULL,
+                start_date TIMESTAMP NOT NULL,
+                end_date TIMESTAMP NOT NULL
+            )
+        ''')
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error creating budgets table: {e}")
+        conn.rollback()
 
-    Ejemplo de uso:
-    --------------
-    Llama a esta función al inicio del bot para asegurar que la base de datos está configurada:60
-    create_expenses_table()
-    """
-    conn = connect_db()
-    cursor = conn.cursor()
+def create_user_language_table(conn):
+    """Creates the 'user_language' table in the database if it doesn't already exist."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_language (
+                user_id INTEGER PRIMARY KEY,
+                language TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error creating user_language table: {e}")
+        conn.rollback()
 
-    # Crear la tabla si no existe
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS expenses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            amount REAL NOT NULL,
-            description TEXT NOT NULL,
-            date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+def insert_expense(conn, user_id, amount, description, category=None):
+    """Inserts a new expense into the 'expenses' table."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO expenses (user_id, amount, description, category)
+            VALUES (?, ?, ?, ?)
+        ''', (user_id, amount, description, category))
+        conn.commit()
+        return cursor.lastrowid  # Return the ID of the newly inserted expense
+    except sqlite3.Error as e:
+        print(f"Error inserting expense: {e}")
+        conn.rollback()
+        return None
 
-    conn.commit()
-    conn.close()
+def delete_expense(conn, expense_id):
+    """Deletes an expense by its ID."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            DELETE FROM expenses WHERE id = ?
+        ''', (expense_id,))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error deleting expense: {e}")
+        conn.rollback()
 
-# Añadir un nuevo gasto
-def add_expense(amount, description):
-    """
-    Inserte un nuevo gasto en la tabla "gastos".
+def update_expense(conn, expense_id, new_amount, new_description):
+    """Updates the amount and description of an existing expense."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE expenses
+            SET amount = ?, description = ?
+            WHERE id = ?
+        ''', (new_amount, new_description, expense_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error updating expense: {e}")
+        conn.rollback()
 
-    Parametros:
-    -----------
-    amount : float
-        El importe del gasto.
-    description : str
-        Breve descripción del gasto.
+def update_expense_category(conn, expense_id, category):
+    """Updates the category of an existing expense."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE expenses
+            SET category = ?
+            WHERE id = ?
+        ''', (category, expense_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error updating expense category: {e}")
+        conn.rollback()
 
-    Devuelve:
-    --------
-    int:
-        El ID de la línea de gasto recién insertada.
+def get_expenses_by_user(conn, user_id):
+    """Retrieves all expenses for a specific user."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM expenses WHERE user_id = ?
+        ''', (user_id,))
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error retrieving expenses: {e}")
+        return []
 
-    Ejemplo de uso:
-    --------------
-    expense_id = add_expense(100.0, "Groceries")
-    print(f"Expense logged with ID: {expense_id}")
-    """
-    conn = connect_db()
-    cursor = conn.cursor()
+def get_expenses_by_category(conn, user_id, category, start_date=None, end_date=None):
+    """Retrieves all expenses by category for a specific user."""
+    try:
+        cursor = conn.cursor()
+        query = 'SELECT * FROM expenses WHERE category = ? AND user_id = ?'
+        params = [category, user_id]
 
-    cursor.execute('''
-        INSERT INTO expenses (amount, description)
-        VALUES (?, ?)
-    ''', (amount, description))
+        if start_date and end_date:
+            query += ' AND date_added BETWEEN ? AND ?'
+            params.extend([start_date, end_date])
 
-    conn.commit()
-    expense_id = cursor.lastrowid  # Obtener el ID de la fila insertada
-    conn.close()
+        cursor.execute(query, params)
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error retrieving expenses by category: {e}")
+        return []
 
-    return expense_id  # Devuelve el ID de la fila insertada
+def list_expenses(conn, user_id):
+    """Lists all expenses for a specific user."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM expenses WHERE user_id = ?
+        ''', (user_id,))
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error listing expenses: {e}")
+        return []
 
-# Suprimir un gasto por ID
-def delete_expense(expense_id):
-    """
-    Eliminar un gasto de la base de datos por su ID.
+def insert_budget(conn, user_id, category, limit, period, start_date, end_date):
+    """Inserts a new budget into the 'budgets' table."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO budgets (user_id, category, "limit", period, start_date, end_date)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (user_id, category, limit, period, start_date, end_date))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error inserting budget: {e}")
+        conn.rollback()
 
-    Parametros:
-    -----------
-    expense_id : int
-        El ID único del gasto que se va a eliminar.
+def get_budget_by_category(conn, user_id, category):
+    """Retrieves the budget for a specific category and user."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM budgets WHERE user_id = ? AND category = ?
+        ''', (user_id, category))
+        return cursor.fetchone()
+    except sqlite3.Error as e:
+        print(f"Error retrieving budget: {e}")
+        return None
 
-    Ejemplo de uso:
-    --------------
-    delete_expense(1)
-    print("Expense with ID 1 deleted.")
-    """
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute('DELETE FROM expenses WHERE id = ?', (expense_id,))
-
-    conn.commit()
-    conn.close()
-
-# Enumere todos los gastos
-def list_expenses():
-    """
-    Recuperar todos los gastos de la base de datos.
-
-    Devuelve:
-    --------
-    lista de tuplas:
-        Una lista de tuplas, donde cada tupla representa un gasto con la siguiente estructura:
-        (id, amount, description, date_added)
-
-    EEjemplo de uso:
-    --------------
-    expenses = list_expenses()
-    for expense in expenses:
-        print(expense)
-    """
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute('SELECT id, amount, description, date_added FROM expenses')
-    expenses = cursor.fetchall()
-
-    conn.close()
-
-    return expenses  # Devuelve una lista de todos los gastos
-
-# Actualizar un gasto existente por ID
-def update_expense(expense_id, new_amount, new_description):
-    """
-    Actualizar el importe y la descripción de un gasto existente por su ID.
-
-    Parametros:
-    -----------
-    expense_id : int
-        El ID único del gasto a actualizar.
-    new_amount : float
-        El nuevo importe del gasto.
-    new_description : str
-        La nueva descripción del gasto.
-
-    Ejemplo de uso:
-    --------------
-    update_expense(1, 150.0, "Updated Groceries")
-    print("Expense updated successfully.")
-    """
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute('''
-        UPDATE expenses
-        SET amount = ?, description = ?
-        WHERE id = ?
-    ''', (new_amount, new_description, expense_id))
-
-    conn.commit()
-    conn.close()
-
-# Llama a esta función para crear la tabla cuando se inicie el bot
-create_expenses_table()
+def update_budget(conn, budget_id, new_limit):
+    """Updates the limit of an existing budget."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE budgets
+            SET "limit" = ?
+            WHERE id = ?
+        ''', (new_limit, budget_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error updating budget: {e}")
+        conn.rollback()
