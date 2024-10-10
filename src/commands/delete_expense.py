@@ -23,7 +23,7 @@ class DeleteExpense(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='delete_expense')
+    @commands.command(name='delete_expense', aliases=['eliminar_gasto'])
     async def delete_expense(self, ctx, expense_id: int):
         """
         A command that deletes an expense from the SQLite database.
