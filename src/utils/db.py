@@ -204,42 +204,51 @@ def update_budget(conn, budget_id, new_limit):
         print(f"Error updating budget: {e}")
         conn.rollback()
 
-def insert_report(conn, user_id, filters, file_path):
+def insert_report(user_id, report_name, file_path):
     """
     Inserts a new report into the 'reports' table.
     """
     try:
+        conn = connect_db()
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO reports (user_id, filters, file_path)
             VALUES (?, ?, ?)
-        ''', (user_id, filters, file_path))
+        ''', (user_id, report_name, file_path))
         conn.commit()
         return cursor.lastrowid  # Return the ID of the newly inserted report
     except sqlite3.Error as e:
         print(f"Error inserting report: {e}")
         conn.rollback()
         return None
+    finally:
+        conn.close()
 
-def get_reports_by_user(conn, user_id):
+
+def get_reports_by_user(user_id):
     """
     Retrieves all reports for a specific user.
     """
     try:
+        conn = connect_db()
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT * FROM reports WHERE user_id = ?
+            SELECT report_id, file_path FROM reports WHERE user_id = ?
         ''', (user_id,))
         return cursor.fetchall()
     except sqlite3.Error as e:
         print(f"Error retrieving reports: {e}")
         return []
+    finally:
+        conn.close()
 
-def delete_report(conn, report_id):
+
+def delete_report(report_id):
     """
     Deletes a report by its ID.
     """
     try:
+        conn = connect_db()
         cursor = conn.cursor()
         cursor.execute('''
             DELETE FROM reports WHERE report_id = ?
@@ -248,6 +257,8 @@ def delete_report(conn, report_id):
     except sqlite3.Error as e:
         print(f"Error deleting report: {e}")
         conn.rollback()
+    finally:
+        conn.close()
 
 def create_reports_table(conn):
     """

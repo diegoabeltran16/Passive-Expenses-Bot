@@ -11,8 +11,12 @@ class DeleteReport(commands.Cog):
         """
         Command to delete a report by its ID.
         """
-        delete_report(report_id)
-        await ctx.send(f"Report with ID {report_id} deleted.")
+        try:
+            # Call the delete_report function with the report ID
+            delete_report(report_id)
+            await ctx.send(f"Report with ID {report_id} deleted successfully.")
+        except Exception as e:
+            await ctx.send(f"An error occurred while deleting the report: {e}")
 
 async def setup(bot):
     await bot.add_cog(DeleteReport(bot))

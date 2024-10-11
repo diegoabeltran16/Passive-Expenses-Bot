@@ -4,9 +4,15 @@ from discord.ext import commands
 from src.commands.set_language import SetLanguage
 from src.utils.lang import translate
 from src.utils.shared import user_language
-
 import yaml
 import os
+
+# Define the intents
+intents = discord.Intents.default()
+intents.message_content = True
+intents.guilds = True
+intents.messages = True
+intents.members = True
 
 # Function to load the configuration safely
 def load_config():
@@ -20,11 +26,6 @@ def load_config():
 
 # Load configuration from config.yaml
 config = load_config()
-
-# Enable intents for handling messages and user interactions
-intents = discord.Intents.default()
-intents.messages = True
-intents.message_content = True
 
 # Initialize the bot with a command prefix and intents
 bot = commands.Bot(command_prefix=config['bot']['prefix'], intents=intents)
@@ -58,7 +59,8 @@ async def on_ready():
     """
     Event triggered when the bot successfully connects to Discord.
     """
-    print(f'Logged in as {bot.user.name}')
+    print(f'Logged in as {bot.user.name} (ID: {bot.user.id})')
+    print('------')
     await load_extensions()
 
 # Define a simple ping command to check if the bot is responsive
@@ -67,7 +69,8 @@ async def ping(ctx):
     await ctx.send("Pong!")
 
 # Run the bot with the token from the configuration file
-try:
-    bot.run(config['bot']['token'])
-except discord.LoginFailure:
-    print("Invalid token. Please check your configuration.")
+if __name__ == "__main__":
+    try:
+        bot.run(config['bot']['token'])
+    except discord.LoginFailure:
+        print("Invalid token. Please check your configuration.")
