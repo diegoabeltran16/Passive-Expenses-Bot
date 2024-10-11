@@ -20,7 +20,13 @@ translations = {
         "error_creating_table": "Error creating reports table: {error}",
         "reports_table_dropped": "Reports table dropped successfully.",
         "error_dropping_table": "Error dropping reports table: {error}",
-        "error_connecting_db": "Error connecting to the database: {error}"
+        "error_connecting_db": "Error connecting to the database: {error}",
+        "report_inserted": "Report inserted with ID {id}.",
+        "error_inserting_report": "Error inserting report: {error}",
+        "reports_retrieved": "Reports retrieved for user {user_id}.",
+        "error_retrieving_reports": "Error retrieving reports: {error}",
+        "report_deleted": "Report with ID {id} deleted.",
+        "error_deleting_report": "Error deleting report: {error}"
     },
     "es": {
         "expense_logged": "Gasto registrado con ID {id}: {amount} por {description}.",
@@ -40,7 +46,13 @@ translations = {
         "error_creating_table": "Error al crear la tabla de informes: {error}",
         "reports_table_dropped": "La tabla de informes se ha eliminado con éxito.",
         "error_dropping_table": "Error al eliminar la tabla de informes: {error}",
-        "error_connecting_db": "Error al conectar con la base de datos: {error}"
+        "error_connecting_db": "Error al conectar con la base de datos: {error}",
+        "report_inserted": "Informe insertado con ID {id}.",
+        "error_inserting_report": "Error al insertar informe: {error}",
+        "reports_retrieved": "Informes recuperados para el usuario {user_id}.",
+        "error_retrieving_reports": "Error al recuperar informes: {error}",
+        "report_deleted": "Informe con ID {id} eliminado.",
+        "error_deleting_report": "Error al eliminar informe: {error}"
     }
 }
 
