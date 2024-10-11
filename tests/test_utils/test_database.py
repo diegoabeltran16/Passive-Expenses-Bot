@@ -1,11 +1,12 @@
 import unittest
 import sqlite3
 from src.utils.db import (
-    insert_budget, get_budget_by_category, update_budget, insert_expense, 
-    update_expense_category, get_expenses_by_category, create_expenses_table, 
+    insert_budget, get_budget_by_category, update_budget, insert_expense,
+    update_expense_category, get_expenses_by_category, create_expenses_table,
     create_budgets_table, insert_report, get_reports_by_user, delete_report,
     create_reports_table
 )
+
 
 class TestDatabaseOperations(unittest.TestCase):
 

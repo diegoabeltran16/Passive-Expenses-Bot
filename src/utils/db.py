@@ -248,3 +248,23 @@ def delete_report(conn, report_id):
     except sqlite3.Error as e:
         print(f"Error deleting report: {e}")
         conn.rollback()
+
+def create_reports_table(conn):
+    """
+    Creates the 'reports' table in the database if it doesn't already exist.
+    """
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS reports (
+                report_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                filters TEXT,
+                file_path TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error creating reports table: {e}")
+        conn.rollback()
