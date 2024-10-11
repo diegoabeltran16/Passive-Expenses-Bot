@@ -31,7 +31,14 @@ translations = {
         "reports_listed": "Your reports:\n{reports}",
         "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
         "error_logging_report": "An error occurred while logging the report: {error}",
-        "error_deleting_report": "An error occurred while deleting the report: {error}"
+        "error_deleting_report": "An error occurred while deleting the report: {error}",
+        # New translations for report generator
+        "report_generated": "Report generated successfully.",
+        "report_generation_failed": "Failed to generate the report.",
+        "report_format_not_supported": "The report format '{format}' is not supported.",
+        "report_no_data": "No data available for the selected filters.",
+        "report_file_saved": "Report saved at: {file_path}"
+
     },
     "es": {
         "expense_logged": "Gasto registrado con ID {id}: {amount} por {description}.",
@@ -64,7 +71,14 @@ translations = {
         "reports_listed": "Tus informes:\n{reports}",
         "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
         "error_logging_report": "Ocurrió un error al registrar el informe: {error}",
-        "error_deleting_report": "Ocurrió un error al eliminar el informe: {error}"
+        "error_deleting_report": "Ocurrió un error al eliminar el informe: {error}",
+        # New translations for report generator
+        "report_generated": "Informe generado con éxito.",
+        "report_generation_failed": "No se pudo generar el informe.",
+        "report_format_not_supported": "El formato de informe '{format}' no es compatible.",
+        "report_no_data": "No hay datos disponibles para los filtros seleccionados.",
+        "report_file_saved": "Informe guardado en: {file_path}"
+
     }
 }
 
