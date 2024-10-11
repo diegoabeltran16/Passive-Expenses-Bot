@@ -1,4 +1,5 @@
 # Translation dictionary for supported languages
+# Translation dictionary for supported languages
 translations = {
     "en": {
         "expense_logged": "Expense logged with ID {id}: {amount} for {description}.",
@@ -24,21 +25,17 @@ translations = {
         "reports_retrieved": "Reports retrieved for user {user_id}.",
         "error_retrieving_reports": "Error retrieving reports: {error}",
         "report_deleted": "Report with ID {id} deleted.",
-        "error_deleting_report": "Error deleting report: {error}",
-        # New translations for report commands
+        "error_deleting_report": "An error occurred while deleting the report: {error}",
         "report_logged": "Report '{name}' logged with file path '{file_path}'.",
         "no_reports_found": "No reports found for your account.",
         "reports_listed": "Your reports:\n{reports}",
         "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
         "error_logging_report": "An error occurred while logging the report: {error}",
-        "error_deleting_report": "An error occurred while deleting the report: {error}",
-        # New translations for report generator
         "report_generated": "Report generated successfully.",
-        "report_generation_failed": "Failed to generate the report.",
+        "report_generation_failed": "Failed to generate report: {error}",
         "report_format_not_supported": "The report format '{format}' is not supported.",
         "report_no_data": "No data available for the selected filters.",
         "report_file_saved": "Report saved at: {file_path}",
-        # New translations for file manager
         "file_saved": "File saved at: {file_path}.",
         "file_retrieved": "File retrieved: {file_path}.",
         "file_deleted": "File deleted successfully.",
@@ -46,16 +43,16 @@ translations = {
         "error_saving_file": "Error saving file: {error}",
         "error_retrieving_file": "Error retrieving file: {error}",
         "error_deleting_file": "Error deleting file: {error}",
-        # Translations for generate_report command
         "pdf_report_generated": "PDF report generated: {file_path}",
         "text_report_generated": "Text report generated successfully.",
-        "report_format_not_supported": "The report format '{format}' is not supported.",
-        "report_generation_failed": "Failed to generate report: {error}",
-        # Translations for list_reports command
         "reports_listed": "Your reports:\n{reports}",
         "no_reports_found": "You have no reports.",
-        "error_retrieving_reports": "Failed to retrieve reports: {error}"
-
+        "error_retrieving_reports": "Failed to retrieve reports: {error}",
+        "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
+        "no_report_found": "No report found with ID {id}.",
+        "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
+        "no_report_found": "No report found with ID {id}.",
+        "error_deleting_report": "An error occurred while deleting the report: {error}"
     },
     "es": {
         "expense_logged": "Gasto registrado con ID {id}: {amount} por {description}.",
@@ -82,20 +79,16 @@ translations = {
         "error_retrieving_reports": "Error al recuperar informes: {error}",
         "report_deleted": "Informe con ID {id} eliminado.",
         "error_deleting_report": "Error al eliminar informe: {error}",
-        # New translations for report commands
         "report_logged": "Informe '{name}' registrado con ruta de archivo '{file_path}'.",
         "no_reports_found": "No se encontraron informes para tu cuenta.",
         "reports_listed": "Tus informes:\n{reports}",
         "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
         "error_logging_report": "Ocurrió un error al registrar el informe: {error}",
-        "error_deleting_report": "Ocurrió un error al eliminar el informe: {error}",
-        # New translations for report generator
         "report_generated": "Informe generado con éxito.",
-        "report_generation_failed": "No se pudo generar el informe.",
+        "report_generation_failed": "No se pudo generar el informe: {error}",
         "report_format_not_supported": "El formato de informe '{format}' no es compatible.",
         "report_no_data": "No hay datos disponibles para los filtros seleccionados.",
         "report_file_saved": "Informe guardado en: {file_path}",
-        # New translations for file manager
         "file_saved": "Archivo guardado en: {file_path}.",
         "file_retrieved": "Archivo recuperado: {file_path}.",
         "file_deleted": "Archivo eliminado con éxito.",
@@ -103,15 +96,16 @@ translations = {
         "error_saving_file": "Error al guardar el archivo: {error}",
         "error_retrieving_file": "Error al recuperar el archivo: {error}",
         "error_deleting_file": "Error al eliminar el archivo: {error}",
-        # Translations for generate_report command
         "pdf_report_generated": "Informe PDF generado: {file_path}",
         "text_report_generated": "Informe de texto generado con éxito.",
-        "report_generation_failed": "No se pudo generar el informe: {error}",
-        # Translations for list_reports command
         "reports_listed": "Tus informes:\n{reports}",
         "no_reports_found": "No se encontraron informes.",
         "error_retrieving_reports": "Error al recuperar informes: {error}",
-
+        "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
+        "no_report_found": "No se encontró un informe con ID {id}.",
+        "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
+        "no_report_found": "No se encontró un informe con ID {id}.",
+        "error_deleting_report": "Ocurrió un error al eliminar el informe: {error}"
     }
 }
 
