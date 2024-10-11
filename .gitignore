@@ -1,37 +1,20 @@
-# Ignore the config file
+# Ignore configuration files
 src/config/config.yaml
 
 # Ignore the SQLite database file
 src/database/expenses.db
 
-# Ignore Python cache files
+# Ignore Python cache files and bytecode
 __pycache__/
 *.py[cod]
 
-# Ignore environment files
+# Ignore environment files and virtual environments
 .env
-*.env
-
-# Ignore SQLite database file
-src/database/expenses.db
+venv/
 
 # Ignore logs
 *.log
 
-# Ignore IDE-specific settings (e.g., for VS Code)
-.vscode/
-
-# Virtual environment
-venv/
-.env/
-
-# Python bytecode
-__pycache__/
-*.py[cod]
-
-# Logs
-*.log
-
-# IDE settings
+# Ignore IDE-specific settings (e.g., for VS Code and other IDEs)
 .vscode/
 .idea/
