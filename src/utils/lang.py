@@ -51,6 +51,10 @@ translations = {
         "text_report_generated": "Text report generated successfully.",
         "report_format_not_supported": "The report format '{format}' is not supported.",
         "report_generation_failed": "Failed to generate report: {error}",
+        # Translations for list_reports command
+        "reports_listed": "Your reports:\n{reports}",
+        "no_reports_found": "You have no reports.",
+        "error_retrieving_reports": "Failed to retrieve reports: {error}"
 
     },
     "es": {
@@ -103,6 +107,10 @@ translations = {
         "pdf_report_generated": "Informe PDF generado: {file_path}",
         "text_report_generated": "Informe de texto generado con éxito.",
         "report_generation_failed": "No se pudo generar el informe: {error}",
+        # Translations for list_reports command
+        "reports_listed": "Tus informes:\n{reports}",
+        "no_reports_found": "No se encontraron informes.",
+        "error_retrieving_reports": "Error al recuperar informes: {error}",
 
     }
 }
