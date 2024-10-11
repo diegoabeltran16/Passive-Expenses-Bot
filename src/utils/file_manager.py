@@ -7,12 +7,13 @@ from src.utils.lang import translate
 def save_file(content, directory, filename, user_id):
     if not os.path.exists(directory):
         os.makedirs(directory)
-    file_path = os.path.join(directory, filename)
-    with open(file_path, 'wb') as file:
-        file.write(content)
 
-    user_language = get_user_language(user_id)
-    return translate("file_saved", user_language, file_path=file_path)
+    file_path = os.path.join(directory, filename)
+
+    with open(file_path, 'wb' if isinstance(content, bytes) else 'w') as file:
+        file.write(content)
+    
+    return file_path
 
 def read_file(file_path, user_id):
     if not os.path.exists(file_path):

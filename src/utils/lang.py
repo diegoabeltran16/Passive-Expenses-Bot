@@ -45,7 +45,12 @@ translations = {
         "file_not_found": "File not found at: {file_path}.",
         "error_saving_file": "Error saving file: {error}",
         "error_retrieving_file": "Error retrieving file: {error}",
-        "error_deleting_file": "Error deleting file: {error}"
+        "error_deleting_file": "Error deleting file: {error}",
+        # Translations for generate_report command
+        "pdf_report_generated": "PDF report generated: {file_path}",
+        "text_report_generated": "Text report generated successfully.",
+        "report_format_not_supported": "The report format '{format}' is not supported.",
+        "report_generation_failed": "Failed to generate report: {error}",
 
     },
     "es": {
@@ -93,7 +98,11 @@ translations = {
         "file_not_found": "Archivo no encontrado en: {file_path}.",
         "error_saving_file": "Error al guardar el archivo: {error}",
         "error_retrieving_file": "Error al recuperar el archivo: {error}",
-        "error_deleting_file": "Error al eliminar el archivo: {error}"
+        "error_deleting_file": "Error al eliminar el archivo: {error}",
+        # Translations for generate_report command
+        "pdf_report_generated": "Informe PDF generado: {file_path}",
+        "text_report_generated": "Informe de texto generado con éxito.",
+        "report_generation_failed": "No se pudo generar el informe: {error}",
 
     }
 }
