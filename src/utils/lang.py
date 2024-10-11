@@ -1,5 +1,3 @@
-# lang.py
-
 # Translation dictionary for supported languages
 translations = {
     "en": {
@@ -26,7 +24,14 @@ translations = {
         "reports_retrieved": "Reports retrieved for user {user_id}.",
         "error_retrieving_reports": "Error retrieving reports: {error}",
         "report_deleted": "Report with ID {id} deleted.",
-        "error_deleting_report": "Error deleting report: {error}"
+        "error_deleting_report": "Error deleting report: {error}",
+        # New translations for report commands
+        "report_logged": "Report '{name}' logged with file path '{file_path}'.",
+        "no_reports_found": "No reports found for your account.",
+        "reports_listed": "Your reports:\n{reports}",
+        "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
+        "error_logging_report": "An error occurred while logging the report: {error}",
+        "error_deleting_report": "An error occurred while deleting the report: {error}"
     },
     "es": {
         "expense_logged": "Gasto registrado con ID {id}: {amount} por {description}.",
@@ -52,7 +57,14 @@ translations = {
         "reports_retrieved": "Informes recuperados para el usuario {user_id}.",
         "error_retrieving_reports": "Error al recuperar informes: {error}",
         "report_deleted": "Informe con ID {id} eliminado.",
-        "error_deleting_report": "Error al eliminar informe: {error}"
+        "error_deleting_report": "Error al eliminar informe: {error}",
+        # New translations for report commands
+        "report_logged": "Informe '{name}' registrado con ruta de archivo '{file_path}'.",
+        "no_reports_found": "No se encontraron informes para tu cuenta.",
+        "reports_listed": "Tus informes:\n{reports}",
+        "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
+        "error_logging_report": "Ocurrió un error al registrar el informe: {error}",
+        "error_deleting_report": "Ocurrió un error al eliminar el informe: {error}"
     }
 }
 

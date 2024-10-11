@@ -6,10 +6,20 @@ from src.utils.lang import translate
 from src.utils.shared import user_language
 
 import yaml
+import os
+
+# Function to load the configuration safely
+def load_config():
+    try:
+        config_path = os.path.join(os.path.dirname(__file__), 'config', 'config.yaml')
+        with open(config_path, 'r') as config_file:
+            return yaml.safe_load(config_file)
+    except FileNotFoundError:
+        print("Configuration file not found. Please ensure 'config.yaml' exists in the 'src/config' directory.")
+        exit(1)
 
 # Load configuration from config.yaml
-with open("src/config/config.yaml", 'r') as config_file:
-    config = yaml.safe_load(config_file)
+config = load_config()
 
 # Enable intents for handling messages and user interactions
 intents = discord.Intents.default()
@@ -36,11 +46,12 @@ async def load_extensions():
     ]
 
     for extension in extensions:
-        try:
-            await bot.load_extension(extension)
-            print(f"Loaded extension {extension}")
-        except Exception as e:
-            print(f"Failed to load extension {extension}. Error: {e}")
+        if extension not in bot.extensions:
+            try:
+                await bot.load_extension(extension)
+                print(f"Loaded extension {extension}")
+            except Exception as e:
+                print(f"Failed to load extension {extension}. Error: {e}")
 
 @bot.event
 async def on_ready():
@@ -56,4 +67,7 @@ async def ping(ctx):
     await ctx.send("Pong!")
 
 # Run the bot with the token from the configuration file
-bot.run(config['bot']['token'])
+try:
+    bot.run(config['bot']['token'])
+except discord.LoginFailure:
+    print("Invalid token. Please check your configuration.")
