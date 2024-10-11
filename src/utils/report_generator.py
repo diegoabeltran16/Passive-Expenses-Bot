@@ -1,21 +1,13 @@
+# src/utils/report_generator.py
+
 import sqlite3
 import csv
 import os
 from fpdf import FPDF
 from src.utils.lang import translate
-from src.utils.shared import user_language
+from src.utils.shared import get_user_language  # Use the function to get user language
 
 def fetch_expenses(conn, user_id, start_date=None, end_date=None, category=None):
-    """
-    Fetch expenses from the database based on filters.
-
-    :param conn: SQLite connection object
-    :param user_id: ID of the user
-    :param start_date: (Optional) Start date for filtering expenses
-    :param end_date: (Optional) End date for filtering expenses
-    :param category: (Optional) Category for filtering expenses
-    :return: A list of tuples containing expense data
-    """
     cursor = conn.cursor()
     query = '''
         SELECT id, user_id, amount, description, category, date_added
@@ -37,31 +29,20 @@ def fetch_expenses(conn, user_id, start_date=None, end_date=None, category=None)
     cursor.execute(query, tuple(params))
     return cursor.fetchall()
 
-def generate_text_report(expenses):
-    """
-    Generate a plain text report from expense data.
-
-    :param expenses: A list of expense tuples
-    :return: A string containing the report
-    """
+def generate_text_report(conn, user_id, start_date=None, end_date=None, category=None):
+    expenses = fetch_expenses(conn, user_id, start_date, end_date, category)
     if not expenses:
-        return "No expenses found for the given filters."
+        return translate("no_report_data", get_user_language(user_id))
 
-    report_lines = ["Expense Report:\n"]
+    report_lines = [translate("report_generated", get_user_language(user_id)) + "\n"]
     for exp in expenses:
         report_lines.append(f"ID: {exp[0]}, Amount: {exp[2]}, Description: {exp[3]}, Category: {exp[4]}, Date: {exp[5]}")
-    report_lines.append("\nTotal Expenses: " + str(len(expenses)))
+    report_lines.append("\n" + translate("total_expenses", get_user_language(user_id)).format(total=len(expenses)))
 
     return "\n".join(report_lines)
 
-def generate_csv_report(expenses, file_path='report.csv'):
-    """
-    Generate a CSV report from expense data.
-
-    :param expenses: A list of expense tuples
-    :param file_path: The file path to save the CSV report
-    :return: The path to the generated CSV file
-    """
+def generate_csv_report(conn, user_id, start_date=None, end_date=None, category=None, file_path='report.csv'):
+    expenses = fetch_expenses(conn, user_id, start_date, end_date, category)
     if not expenses:
         return None
 
@@ -73,21 +54,15 @@ def generate_csv_report(expenses, file_path='report.csv'):
 
     return file_path
 
-def generate_pdf_report(expenses, file_path='report.pdf'):
-    """
-    Generate a PDF report from expense data.
-
-    :param expenses: A list of expense tuples
-    :param file_path: The file path to save the PDF report
-    :return: The path to the generated PDF file
-    """
+def generate_pdf_report(conn, user_id, start_date=None, end_date=None, category=None, file_path='report.pdf'):
+    expenses = fetch_expenses(conn, user_id, start_date, end_date, category)
     if not expenses:
         return None
 
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="Expense Report", ln=True, align='C')
+    pdf.cell(200, 10, txt=translate("report_generated", get_user_language(user_id)), ln=True, align='C')
     pdf.ln(10)
 
     for exp in expenses:
@@ -97,25 +72,13 @@ def generate_pdf_report(expenses, file_path='report.pdf'):
     return file_path
 
 def generate_report(conn, user_id, start_date=None, end_date=None, category=None, format='text', file_path=None):
-    """
-    Generate a report based on user filters and the specified format.
-
-    :param conn: SQLite connection object
-    :param user_id: ID of the user for whom the report is generated
-    :param start_date: (Optional) Start date for filtering expenses
-    :param end_date: (Optional) End date for filtering expenses
-    :param category: (Optional) Category for filtering expenses
-    :param format: Report format ('text', 'csv', 'pdf')
-    :param file_path: Optional path for saving the report (for CSV/PDF)
-    :return: The report as a string (for text) or a file path (for CSV/PDF)
-    """
     expenses = fetch_expenses(conn, user_id, start_date, end_date, category)
 
     if format == 'text':
-        return generate_text_report(expenses)
+        return generate_text_report(conn, user_id, start_date, end_date, category)
     elif format == 'csv':
-        return generate_csv_report(expenses, file_path or 'report.csv')
+        return generate_csv_report(conn, user_id, start_date, end_date, category, file_path or 'report.csv')
     elif format == 'pdf':
-        return generate_pdf_report(expenses, file_path or 'report.pdf')
+        return generate_pdf_report(conn, user_id, start_date, end_date, category, file_path or 'report.pdf')
     else:
-        raise ValueError("Invalid format. Supported formats are: 'text', 'csv', 'pdf'.")
+        raise ValueError(translate("report_format_not_supported", get_user_language(user_id)).format(format=format))

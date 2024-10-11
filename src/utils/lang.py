@@ -37,7 +37,15 @@ translations = {
         "report_generation_failed": "Failed to generate the report.",
         "report_format_not_supported": "The report format '{format}' is not supported.",
         "report_no_data": "No data available for the selected filters.",
-        "report_file_saved": "Report saved at: {file_path}"
+        "report_file_saved": "Report saved at: {file_path}",
+        # New translations for file manager
+        "file_saved": "File saved at: {file_path}.",
+        "file_retrieved": "File retrieved: {file_path}.",
+        "file_deleted": "File deleted successfully.",
+        "file_not_found": "File not found at: {file_path}.",
+        "error_saving_file": "Error saving file: {error}",
+        "error_retrieving_file": "Error retrieving file: {error}",
+        "error_deleting_file": "Error deleting file: {error}"
 
     },
     "es": {
@@ -77,7 +85,15 @@ translations = {
         "report_generation_failed": "No se pudo generar el informe.",
         "report_format_not_supported": "El formato de informe '{format}' no es compatible.",
         "report_no_data": "No hay datos disponibles para los filtros seleccionados.",
-        "report_file_saved": "Informe guardado en: {file_path}"
+        "report_file_saved": "Informe guardado en: {file_path}",
+        # New translations for file manager
+        "file_saved": "Archivo guardado en: {file_path}.",
+        "file_retrieved": "Archivo recuperado: {file_path}.",
+        "file_deleted": "Archivo eliminado con éxito.",
+        "file_not_found": "Archivo no encontrado en: {file_path}.",
+        "error_saving_file": "Error al guardar el archivo: {error}",
+        "error_retrieving_file": "Error al recuperar el archivo: {error}",
+        "error_deleting_file": "Error al eliminar el archivo: {error}"
 
     }
 }
