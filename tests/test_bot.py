@@ -9,6 +9,7 @@ from discord.ext import commands
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 from bot import bot, load_extensions
+from src.utils.db import insert_report, get_reports_by_user, delete_report
 
 class TestBot(unittest.IsolatedAsyncioTestCase):
 
@@ -32,7 +33,6 @@ class TestBot(unittest.IsolatedAsyncioTestCase):
         self.ctx.send = AsyncMock()
         self.ctx.author.id = 1
         self.ctx.message = MagicMock()
-        self.ctx.message.content = "!ping"
         self.ctx.message.author = self.ctx.author
 
     async def asyncTearDown(self):
@@ -62,7 +62,6 @@ class TestBot(unittest.IsolatedAsyncioTestCase):
         """
         # Patch the bot's load_extension method
         with patch.object(self.bot, 'load_extension', new_callable=AsyncMock) as mock_load_extension:
-            # Override bot instance in load_extensions function for testing
             await load_extensions()  # Call the method to load extensions
 
             # Check that extensions were attempted to be loaded
@@ -71,25 +70,63 @@ class TestBot(unittest.IsolatedAsyncioTestCase):
                 'src.commands.delete_expense',
                 'src.commands.list_expenses',
                 'src.commands.update_expense',
-                'src.commands.set_language'
+                'src.commands.set_language',
+                'src.commands.log_report',     # Added new command for log report
+                'src.commands.get_reports',    # Added new command for get reports
+                'src.commands.delete_report'   # Added new command for delete report
             ]
             for ext in extensions:
                 mock_load_extension.assert_any_call(ext)
 
-    async def test_command_invocation(self):
+    async def test_log_report_command(self):
         """
-        Test invoking a non-existent command to ensure proper handling.
+        Test the log_report command to verify it logs a report correctly.
         """
-        # Create a fake message object for a non-existent command
-        self.ctx.message.content = "!nonexistent_command"
-        message = self.ctx.message
-        ctx = await self.bot.get_context(message)
+        # Simulate the log_report command
+        @self.bot.command(name='log_report')
+        async def log_report(ctx, report_name, file_path):
+            # Mock inserting a report into the database
+            report_id = insert_report(MagicMock(), ctx.author.id, report_name, file_path)
+            if report_id:
+                await ctx.send(f"Report logged successfully with ID {report_id}.")
+            else:
+                await ctx.send("Error logging report.")
 
-        # Invoke the non-existent command
-        await self.bot.invoke(ctx)
+        self.ctx.message.content = "!log_report 'Monthly Report' '/path/to/report.pdf'"
+        command = self.bot.get_command('log_report')
+        await command(self.ctx, 'Monthly Report', '/path/to/report.pdf')
+        self.ctx.send.assert_called_with("Report logged successfully with ID 1.")
 
-        # Verify that the bot doesn't call ctx.send() because the command doesn't exist
-        self.ctx.send.assert_not_called()
+    async def test_get_reports_command(self):
+        """
+        Test the get_reports command to ensure it fetches reports for a user.
+        """
+        @self.bot.command(name='get_reports')
+        async def get_reports(ctx):
+            reports = get_reports_by_user(MagicMock(), ctx.author.id)
+            if reports:
+                await ctx.send(f"Retrieved {len(reports)} reports.")
+            else:
+                await ctx.send("No reports found.")
+
+        self.ctx.message.content = "!get_reports"
+        command = self.bot.get_command('get_reports')
+        await command(self.ctx)
+        self.ctx.send.assert_called_with("Retrieved 1 reports.")
+
+    async def test_delete_report_command(self):
+        """
+        Test the delete_report command to ensure it deletes a report by ID.
+        """
+        @self.bot.command(name='delete_report')
+        async def delete_report(ctx, report_id):
+            delete_report(MagicMock(), report_id)
+            await ctx.send(f"Report with ID {report_id} deleted.")
+
+        self.ctx.message.content = "!delete_report 1"
+        command = self.bot.get_command('delete_report')
+        await command(self.ctx, 1)
+        self.ctx.send.assert_called_with("Report with ID 1 deleted.")
 
 if __name__ == '__main__':
     unittest.main()
