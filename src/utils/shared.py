@@ -5,6 +5,7 @@ from src.utils.db import connect_db
 def set_user_language(user_id, language):
     """
     Sets the user's preferred language in the database.
+    If the user already has a language set, it updates the language.
     """
     conn = connect_db()
     if conn:
@@ -20,10 +21,13 @@ def set_user_language(user_id, language):
             print(f"Error setting user language: {e}")
         finally:
             conn.close()
+    else:
+        print("Failed to connect to the database.")
 
 def get_user_language(user_id):
     """
-    Retrieves the user's preferred language from the database. Defaults to 'en' if not set.
+    Retrieves the user's preferred language from the database.
+    If no language is set, defaults to English ('en').
     """
     conn = connect_db()
     if conn:
@@ -37,4 +41,7 @@ def get_user_language(user_id):
             print(f"Error retrieving user language: {e}")
         finally:
             conn.close()
+    else:
+        print("Failed to connect to the database.")
+        
     return 'en'  # Default to English if no language is set

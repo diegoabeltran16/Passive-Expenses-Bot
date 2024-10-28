@@ -1,11 +1,10 @@
-# tests/test_utils/test_report_generator.py
-
 import unittest
 import os
 from src.utils.report_generator import generate_report
 from src.utils.shared import set_user_language, get_user_language
 from src.utils.db import connect_db
 from src.utils.lang import translate
+from PyPDF2 import PdfReader
 
 class TestReportGenerator(unittest.TestCase):
 
@@ -38,14 +37,14 @@ class TestReportGenerator(unittest.TestCase):
 
     def test_generate_text_report(self):
         # Test generating a text report
-            set_user_language(self.user_id, "en")
-            report = generate_report(self.conn, self.user_id, self.start_date, self.end_date, self.category, format='text')
-    
-         # Fetch the expected translation for the report header
-            expected_report_header = translate("report_generated", language="en")
-    
-         # Assert that the translated header is in the report
-            self.assertIn(expected_report_header, report)
+        set_user_language(self.user_id, "en")
+        report = generate_report(self.conn, self.user_id, self.start_date, self.end_date, self.category, format='text')
+
+        # Fetch the expected translation for the report header
+        expected_report_header = translate("report_generated", language="en")
+
+        # Assert that the translated header is in the report
+        self.assertIn(expected_report_header, report)
 
     def test_generate_csv_report(self):
         # Test generating a CSV report
@@ -60,6 +59,20 @@ class TestReportGenerator(unittest.TestCase):
         file_path = generate_report(self.conn, self.user_id, self.start_date, self.end_date, self.category, format='pdf', file_path='report.pdf')
         self.assertTrue(os.path.exists(file_path))
         self.assertEqual(file_path, 'report.pdf')
+
+        # Now, let's verify the content inside the PDF
+        with open(file_path, 'rb') as pdf_file:
+            reader = PdfReader(pdf_file)
+            num_pages = len(reader.pages)
+            self.assertGreater(num_pages, 0, "The PDF should contain at least one page.")
+            
+            # Extract text from the first page of the PDF
+            first_page = reader.pages[0]
+            pdf_text = first_page.extract_text()
+
+            # Verify that the translated report header is in the PDF content
+            expected_report_header = translate("report_generated", language="en")
+            self.assertIn(expected_report_header, pdf_text)
 
     def test_translate_messages_in_reports(self):
         # Test that translations are correctly applied in reports

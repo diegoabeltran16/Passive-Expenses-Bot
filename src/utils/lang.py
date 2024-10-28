@@ -1,5 +1,4 @@
 # Translation dictionary for supported languages
-# Translation dictionary for supported languages
 translations = {
     "en": {
         "expense_logged": "Expense logged with ID {id}: {amount} for {description}.",

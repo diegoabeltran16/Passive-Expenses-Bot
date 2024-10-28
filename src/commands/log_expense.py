@@ -3,7 +3,7 @@ import sqlite3
 import logging
 from discord.ext import commands
 from src.utils.lang import translate
-from src.utils.shared import user_language
+from src.utils.shared import get_user_language  # Updated import
 from src.utils.db import insert_expense, create_expenses_table
 import yaml
 
@@ -37,9 +37,9 @@ class LogExpense(commands.Cog):
         description: The description of the expense.
         conn: Optional database connection for testing.
         """
-        # Retrieve user's preferred language or use default
+        # Retrieve user's preferred language from the database or use default
         user_id = ctx.author.id
-        language = user_language.get(ctx.author.id, config.get("default_language", "en"))
+        language = get_user_language(user_id)  # Using get_user_language function
 
         # Log language confirmation
         logging.info(f"User {user_id} is using language: {language}")

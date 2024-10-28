@@ -1,10 +1,14 @@
 import os
 import sqlite3
+import logging
 from discord.ext import commands
 from src.utils.lang import translate
-from src.utils import db
-from src.utils.shared import user_language
+from src.utils import db  # Importing the database utilities
+from src.utils.shared import get_user_language  # Replace user_language dictionary with function
 import yaml
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 # Load configuration from config.yaml
 config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.yaml')
@@ -15,7 +19,7 @@ with open(config_path, 'r') as config_file:
 def initialize_database(db_path):
     if not os.path.exists(db_path):
         conn = sqlite3.connect(db_path)
-        db.create_expenses_table(conn)
+        db.create_expenses_table(conn)  # Ensure the expenses table is created
         conn.close()
 
 class ListExpenses(commands.Cog):
@@ -26,12 +30,15 @@ class ListExpenses(commands.Cog):
     async def list_expenses(self, ctx, conn=None):
         """
         A command that lists all expenses from the SQLite database and sends them to the Discord channel.
+        
         Parameters:
         ctx: The context of the command invocation.
         conn: Optional database connection for testing.
         """
         user_id = ctx.author.id
-        language = user_language.get(user_id, config.get("default_language", "en"))
+
+        # Fetch the user's preferred language from the database
+        language = get_user_language(user_id)
 
         if not conn:
             # Generate an absolute path to the database
@@ -48,8 +55,8 @@ class ListExpenses(commands.Cog):
             try:
                 conn = sqlite3.connect(db_path)
             except sqlite3.OperationalError as e:
-                print(f"Error: {e}")
-                await ctx.send("Could not open the database. Please try again later.")
+                logging.error(f"Error opening database: {e}")
+                await ctx.send(translate("error_connecting_db", language, error=str(e)))
                 return
 
         try:
@@ -62,11 +69,16 @@ class ListExpenses(commands.Cog):
                 for expense in expenses:
                     response += f"ID: {expense[0]}, Amount: {expense[2]}, Description: {expense[3]}, Date Added: {expense[5]}\n"
 
+            # Send the list of expenses to the Discord channel
             await ctx.send(response)
 
         except sqlite3.OperationalError as e:
-            print(f"Error: {e}")
-            await ctx.send("Could not open the database. Please try again later.")
+            logging.error(f"Error querying database: {e}")
+            await ctx.send(translate("error_connecting_db", language, error=str(e)))
+
+        finally:
+            if conn:
+                conn.close()
 
 # Async function to add the Cog to the bot
 async def setup(bot):

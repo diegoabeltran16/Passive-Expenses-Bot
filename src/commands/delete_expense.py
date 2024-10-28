@@ -1,10 +1,14 @@
 import os
 import sqlite3
+import logging
 from discord.ext import commands
 from src.utils.lang import translate  # Import the translation module for multilingual responses
 from src.utils import db  # Import the db module where database functions are located.
-from src.utils.shared import user_language  # Import user_language dictionary to access user language preferences
+from src.utils.shared import get_user_language  # Import the function to get user language from the database
 import yaml
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 # Load configuration from config.yaml
 config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.yaml')
@@ -28,9 +32,9 @@ class DeleteExpense(commands.Cog):
         """
         A command that deletes an expense from the SQLite database.
         """
-        # Get the user's preferred language, defaulting to 'en' if not set
+        # Get the user's preferred language from the database or default to 'en'
         user_id = ctx.author.id
-        language = user_language.get(user_id, config.get("default_language", "en"))
+        language = get_user_language(user_id)  # Using the function to get language from the database
 
         # Generate an absolute path to the database
         db_directory = os.path.join(os.path.dirname(__file__), "../database")
@@ -46,6 +50,7 @@ class DeleteExpense(commands.Cog):
         # Connect to the database and delete the expense
         try:
             with sqlite3.connect(db_path) as conn:
+                # Delete the expense using the provided ID
                 db.delete_expense(conn, expense_id)
 
                 # Use the translation function to generate a response in the user's language
@@ -55,7 +60,7 @@ class DeleteExpense(commands.Cog):
                 await ctx.send(response)
 
         except sqlite3.OperationalError as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
             await ctx.send("Could not open the database. Please try again later.")
 
 # Asynchronous function to add the Cog to the bot.

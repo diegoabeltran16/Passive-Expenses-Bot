@@ -1,9 +1,6 @@
 # Import required modules from discord, yaml, and your own utilities
 import discord
 from discord.ext import commands
-from src.commands.set_language import SetLanguage
-from src.utils.lang import translate
-from src.utils.shared import user_language
 import yaml
 import os
 
@@ -43,7 +40,8 @@ async def load_extensions():
         'src.commands.set_language',
         'src.commands.log_report',     
         'src.commands.get_reports',    
-        'src.commands.delete_report'   
+        'src.commands.delete_report',
+        'src.commands.generate_report'  # Ensure you add this!
     ]
 
     for extension in extensions:
