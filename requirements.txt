@@ -1,2 +1,3 @@
-discord.py==2.0.0  # La biblioteca principal de Discord utilizada para interactuar con la API de Discord
-PyYAML==6.0        # Se utiliza para leer archivos de configuración (config.yaml)
+discord.py==2.0.0    # The main library for interacting with the Discord API
+PyYAML==6.0          # Used for reading configuration files (e.g., config.yaml)
+fpdf==1.7.2          # For PDF report generation

@@ -5,10 +5,13 @@ import discord
 from unittest.mock import AsyncMock, MagicMock, patch
 from discord.ext import commands
 
-# Add the correct path for imports to include the src directory
+# Ensure the src directory is in the Python path for imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-from bot import bot, load_extensions
+# Correct the import based on the project structure
+from src.bot import bot, load_extensions
+from src.config.config import get_config
+
 
 class TestBot(unittest.IsolatedAsyncioTestCase):
 
@@ -16,16 +19,25 @@ class TestBot(unittest.IsolatedAsyncioTestCase):
         """
         Set up the bot instance before each test.
         """
+        prefix = get_config('bot.prefix', '!')
         intents = discord.Intents.default()
-        self.bot = commands.Bot(command_prefix="!", intents=intents)
+        intents.message_content = True
+        self.bot = commands.Bot(command_prefix=prefix, intents=intents)
 
-        # Patch the run method to prevent the bot from actually running during tests
-        self.run_patcher = patch.object(self.bot, 'run', return_value=None)
-        self.mock_run = self.run_patcher.start()
+        # Patch the bot's login process to mock the user attribute indirectly
+        self.user_mock = MagicMock()
+        self.user_mock.id = 12345
+        self.user_mock.name = "MockBot"
+        
+        # Mock the bot's user property correctly
+        self.bot._user = self.user_mock
 
-        # Mock the bot's user object to simulate the bot being logged in
-        self.bot.user = MagicMock()
-        self.bot.user.id = 12345  # Set a mock bot user ID
+        # Unload all extensions to avoid double loading
+        for ext in list(self.bot.extensions):
+            await self.bot.unload_extension(ext)
+
+        # Load extensions only once for testing
+        await load_extensions()
 
         # Mock the send method for ctx
         self.ctx = MagicMock()
@@ -39,7 +51,7 @@ class TestBot(unittest.IsolatedAsyncioTestCase):
         """
         Clean up after each test.
         """
-        self.run_patcher.stop()
+        await self.bot.close()
 
     async def test_ping_command(self):
         """
@@ -60,36 +72,48 @@ class TestBot(unittest.IsolatedAsyncioTestCase):
         """
         Test loading extensions dynamically.
         """
-        # Patch the bot's load_extension method
-        with patch.object(self.bot, 'load_extension', new_callable=AsyncMock) as mock_load_extension:
-            # Override bot instance in load_extensions function for testing
-            await load_extensions()  # Call the method to load extensions
+        # Unload any currently loaded extensions before testing
+        for ext in list(self.bot.extensions):
+            await self.bot.unload_extension(ext)
 
-            # Check that extensions were attempted to be loaded
+        with patch.object(self.bot, 'load_extension', new_callable=AsyncMock) as mock_load_extension:
+            await load_extensions()
             extensions = [
                 'src.commands.log_expense',
                 'src.commands.delete_expense',
                 'src.commands.list_expenses',
                 'src.commands.update_expense',
-                'src.commands.set_language'
+                'src.commands.set_language',
+                'src.commands.log_report',
+                'src.commands.get_reports',
+                'src.commands.delete_report'
             ]
             for ext in extensions:
                 mock_load_extension.assert_any_call(ext)
+
+            # Ensure the extensions were loaded exactly as expected
+            self.assertEqual(mock_load_extension.call_count, len(extensions))
 
     async def test_command_invocation(self):
         """
         Test invoking a non-existent command to ensure proper handling.
         """
-        # Create a fake message object for a non-existent command
-        self.ctx.message.content = "!nonexistent_command"
-        message = self.ctx.message
-        ctx = await self.bot.get_context(message)
+        # Mock the bot's user properly before testing
+        self.bot._user = self.user_mock
 
-        # Invoke the non-existent command
-        await self.bot.invoke(ctx)
+        # Create a fake message object for a non-existent command
+        message = self.ctx.message
+        message.content = "!nonexistent_command"
+        ctx = await self.bot.get_context(message)
+        
+        # Invoke the command and simulate command error handling
+        with patch.object(self.bot, 'dispatch') as mock_dispatch:
+            await self.bot.invoke(ctx)
+            mock_dispatch.assert_called_with('command_error', ctx, unittest.mock.ANY)
 
         # Verify that the bot doesn't call ctx.send() because the command doesn't exist
         self.ctx.send.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()

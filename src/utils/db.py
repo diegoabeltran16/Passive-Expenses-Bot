@@ -7,67 +7,78 @@ def connect_db():
     """
     try:
         conn = sqlite3.connect('src/database/expenses.db')
-        create_expenses_table(conn)
-        create_budgets_table(conn)
-        create_user_language_table(conn)
+        create_tables(conn)  # Create all tables
         return conn
     except sqlite3.Error as e:
         print(f"Error connecting to the database: {e}")
         return None
 
+def create_tables(conn):
+    """Creates necessary tables in the database if they don't already exist."""
+    try:
+        create_expenses_table(conn)
+        create_budgets_table(conn)
+        create_user_language_table(conn)
+        create_reports_table(conn)
+    except sqlite3.Error as e:
+        print(f"Error creating tables: {e}")
+        conn.rollback()
+
 def create_expenses_table(conn):
     """Creates the 'expenses' table in the database if it doesn't already exist."""
-    try:
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS expenses (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                amount REAL NOT NULL,
-                description TEXT NOT NULL,
-                category TEXT,
-                date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        conn.commit()
-    except sqlite3.Error as e:
-        print(f"Error creating expenses table: {e}")
-        conn.rollback()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS expenses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            amount REAL NOT NULL,
+            description TEXT NOT NULL,
+            category TEXT,
+            date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
 
 def create_budgets_table(conn):
     """Creates the 'budgets' table in the database if it doesn't already exist."""
-    try:
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS budgets (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                category TEXT NOT NULL,
-                "limit" REAL NOT NULL,
-                period TEXT NOT NULL,
-                start_date TIMESTAMP NOT NULL,
-                end_date TIMESTAMP NOT NULL
-            )
-        ''')
-        conn.commit()
-    except sqlite3.Error as e:
-        print(f"Error creating budgets table: {e}")
-        conn.rollback()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS budgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            category TEXT NOT NULL,
+            "limit" REAL NOT NULL,
+            period TEXT NOT NULL,
+            start_date TIMESTAMP NOT NULL,
+            end_date TIMESTAMP NOT NULL
+        )
+    ''')
+    conn.commit()
 
 def create_user_language_table(conn):
     """Creates the 'user_language' table in the database if it doesn't already exist."""
-    try:
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS user_language (
-                user_id INTEGER PRIMARY KEY,
-                language TEXT NOT NULL
-            )
-        ''')
-        conn.commit()
-    except sqlite3.Error as e:
-        print(f"Error creating user_language table: {e}")
-        conn.rollback()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_language (
+            user_id INTEGER PRIMARY KEY,
+            language TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+
+def create_reports_table(conn):
+    """Creates the 'reports' table in the database if it doesn't already exist."""
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reports (
+            report_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            filters TEXT,
+            file_path TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
 
 def insert_expense(conn, user_id, amount, description, category=None):
     """Inserts a new expense into the 'expenses' table."""
@@ -78,7 +89,7 @@ def insert_expense(conn, user_id, amount, description, category=None):
             VALUES (?, ?, ?, ?)
         ''', (user_id, amount, description, category))
         conn.commit()
-        return cursor.lastrowid  # Return the ID of the newly inserted expense
+        return cursor.lastrowid
     except sqlite3.Error as e:
         print(f"Error inserting expense: {e}")
         conn.rollback()
@@ -153,18 +164,6 @@ def get_expenses_by_category(conn, user_id, category, start_date=None, end_date=
         print(f"Error retrieving expenses by category: {e}")
         return []
 
-def list_expenses(conn, user_id):
-    """Lists all expenses for a specific user."""
-    try:
-        cursor = conn.cursor()
-        cursor.execute('''
-            SELECT * FROM expenses WHERE user_id = ?
-        ''', (user_id,))
-        return cursor.fetchall()
-    except sqlite3.Error as e:
-        print(f"Error listing expenses: {e}")
-        return []
-
 def insert_budget(conn, user_id, category, limit, period, start_date, end_date):
     """Inserts a new budget into the 'budgets' table."""
     try:
@@ -202,4 +201,43 @@ def update_budget(conn, budget_id, new_limit):
         conn.commit()
     except sqlite3.Error as e:
         print(f"Error updating budget: {e}")
+        conn.rollback()
+
+def insert_report(conn, user_id, report_name, file_path):
+    """Inserts a new report into the 'reports' table."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO reports (user_id, filters, file_path)
+            VALUES (?, ?, ?)
+        ''', (user_id, report_name, file_path))
+        conn.commit()
+        return cursor.lastrowid
+    except sqlite3.Error as e:
+        print(f"Error inserting report: {e}")
+        conn.rollback()
+        return None
+
+def get_reports_by_user(conn, user_id):
+    """Retrieves all reports for a specific user."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT report_id, file_path FROM reports WHERE user_id = ?
+        ''', (user_id,))
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error retrieving reports: {e}")
+        return []
+
+def delete_report(conn, report_id):
+    """Deletes a report by its ID."""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            DELETE FROM reports WHERE report_id = ?
+        ''', (report_id,))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error deleting report: {e}")
         conn.rollback()

@@ -1,58 +1,74 @@
-# Importa los módulos necesarios de los paquetes discord y yaml.
+# Import required modules from discord, yaml, and your own utilities
 import discord
 from discord.ext import commands
-from src.commands.set_language import SetLanguage  # Asegura que el path sea correcto para el Cog
-from src.utils.lang import translate  # Importa la función de traducción
-from src.utils.shared import user_language  # Importa el diccionario compartido de preferencias de idioma
-
 import yaml
+import os
 
-# Cargar la configuración desde el archivo config.yaml
-with open("src/config/config.yaml", 'r') as config_file:
-    config = yaml.safe_load(config_file)
-
-# Habilita intents para permitir que el bot gestione eventos como mensajes e interacciones con los usuarios.
+# Define the intents
 intents = discord.Intents.default()
-intents.messages = True  # Permitir que el bot lea y responda a los mensajes.
-intents.message_content = True  # Habilita la intención de contenido de mensaje para acceder al contenido de texto de los mensajes.
+intents.message_content = True
+intents.guilds = True
+intents.messages = True
+intents.members = True
 
-# Inicializa la instancia del bot con el prefijo y los intents cargados desde el archivo de configuración.
+# Function to load the configuration safely
+def load_config():
+    try:
+        config_path = os.path.join(os.path.dirname(__file__), 'config', 'config.yaml')
+        with open(config_path, 'r') as config_file:
+            return yaml.safe_load(config_file)
+    except FileNotFoundError:
+        print("Configuration file not found. Please ensure 'config.yaml' exists in the 'src/config' directory.")
+        exit(1)
+
+# Load configuration from config.yaml
+config = load_config()
+
+# Initialize the bot with a command prefix and intents
 bot = commands.Bot(command_prefix=config['bot']['prefix'], intents=intents)
 
-# Función asíncrona para cargar extensiones de comandos dinámicamente.
+# Function to load command extensions dynamically
 async def load_extensions():
     """
-    Carga asíncrona de extensiones (módulos de comandos).
+    Asynchronously load command extensions (modules).
     """
     extensions = [
         'src.commands.log_expense',
         'src.commands.delete_expense',
         'src.commands.list_expenses',
         'src.commands.update_expense',
-        'src.commands.set_language'  # Asegura el path correcto para set_language
+        'src.commands.set_language',
+        'src.commands.log_report',     
+        'src.commands.get_reports',    
+        'src.commands.delete_report',
+        'src.commands.generate_report'  # Ensure you add this!
     ]
 
     for extension in extensions:
-        try:
-            # Intente cargar cada extensión de comando.
-            await bot.load_extension(extension)
-            print(f"Loaded extension {extension}")
-        except Exception as e:
-            # Si la carga falla, imprima el error.
-            print(f"Failed to load extension {extension}. Error: {e}")
+        if extension not in bot.extensions:
+            try:
+                await bot.load_extension(extension)
+                print(f"Loaded extension {extension}")
+            except Exception as e:
+                print(f"Failed to load extension {extension}. Error: {e}")
 
 @bot.event
 async def on_ready():
     """
-    Evento que se activa cuando el bot se conecta con éxito a Discord.
+    Event triggered when the bot successfully connects to Discord.
     """
-    print(f'Logged in as {bot.user.name}')
-    await load_extensions()  # Carga todas las extensiones de comandos después de que el bot esté listo.
+    print(f'Logged in as {bot.user.name} (ID: {bot.user.id})')
+    print('------')
+    await load_extensions()
 
-# Define un simple comando ping para probar si el bot responde.
+# Define a simple ping command to check if the bot is responsive
 @bot.command()
 async def ping(ctx):
-    await ctx.send("Pong!")  # Responde con "¡Pong!" para verificar la capacidad de respuesta del bot.
+    await ctx.send("Pong!")
 
-# Ejecuta el bot con el token proporcionado en el archivo de configuración.
-bot.run(config['bot']['token'])
+# Run the bot with the token from the configuration file
+if __name__ == "__main__":
+    try:
+        bot.run(config['bot']['token'])
+    except discord.LoginFailure:
+        print("Invalid token. Please check your configuration.")
