@@ -44,14 +44,9 @@ translations = {
         "error_deleting_file": "Error deleting file: {error}",
         "pdf_report_generated": "PDF report generated: {file_path}",
         "text_report_generated": "Text report generated successfully.",
-        "reports_listed": "Your reports:\n{reports}",
-        "no_reports_found": "You have no reports.",
-        "error_retrieving_reports": "Failed to retrieve reports: {error}",
-        "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
         "no_report_found": "No report found with ID {id}.",
-        "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
-        "no_report_found": "No report found with ID {id}.",
-        "error_deleting_report": "An error occurred while deleting the report: {error}"
+        "csv_report_generated": "CSV report generated and saved at: {file_path}",
+        "text_report_generated": "Text report generated successfully."
     },
     "es": {
         "expense_logged": "Gasto registrado con ID {id}: {amount} por {description}.",
@@ -97,21 +92,29 @@ translations = {
         "error_deleting_file": "Error al eliminar el archivo: {error}",
         "pdf_report_generated": "Informe PDF generado: {file_path}",
         "text_report_generated": "Informe de texto generado con éxito.",
-        "reports_listed": "Tus informes:\n{reports}",
-        "no_reports_found": "No se encontraron informes.",
-        "error_retrieving_reports": "Error al recuperar informes: {error}",
-        "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
         "no_report_found": "No se encontró un informe con ID {id}.",
-        "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
-        "no_report_found": "No se encontró un informe con ID {id}.",
-        "error_deleting_report": "Ocurrió un error al eliminar el informe: {error}"
-    }
+        "csv_report_generated": "Informe CSV generado y guardado en: {file_path}",
+        "text_report_generated": "Informe de texto generado con éxito.",    }
 }
+
 
 # Function to retrieve the translated message
 def translate(message_key, language="en", **kwargs):
     print(f"Translating '{message_key}' to '{language}' with values {kwargs}")
+    
+    # Use default language if the specified one isn't available
     if language not in translations:
         language = "en"
-    message_template = translations[language].get(message_key, "")
-    return message_template.format(**kwargs)
+    
+    # Get the message template, fallback if the key is missing
+    message_template = translations[language].get(message_key, f"[Missing translation for key: {message_key}]")
+    
+    # Ensure message_template is a string before formatting
+    if isinstance(message_template, str):
+        try:
+            # Format with the provided kwargs, catch errors if placeholders are missing
+            return message_template.format(**kwargs)
+        except KeyError as e:
+            return f"[Translation error: missing placeholder {str(e)} for key: {message_key}]"
+    else:
+        return f"[Translation error: template for key {message_key} is not a valid string]"

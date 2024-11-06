@@ -1,57 +1,61 @@
-import sqlite3
-from discord.ext import commands
-from src.utils.lang import translate
-from src.utils.report_generator import generate_report
-from src.utils.db import connect_db
+#src\utils\generate_report.py
+
+import csv
 import os
+import logging
 
-class GenerateReport(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+def generate_report(conn, user_id, start_date=None, end_date=None, category=None, format="csv", file_path=None):
+    """
+    Generates an expense report in the specified format based on filters.
+    """
+    # SQL query with date filters and handling NULL categories
+    query = "SELECT amount, description, category, date(date_added) FROM expenses WHERE user_id = ?"
+    params = [user_id]
 
-    @commands.command(name='generate_report', aliases=['generar_reporte'])
-    async def generate_report(self, ctx, report_format: str = "pdf"):
-        """
-        Command to generate an expense report in the specified format.
-        Supported formats are 'pdf' and 'csv'.
-        """
-        user_id = ctx.author.id
-        user_language = 'es'  # Fetch user's language preference if applicable.
+    if start_date:
+        query += " AND date(date_added) >= date(?)"
+        params.append(start_date)
+    if end_date:
+        query += " AND date(date_added) <= date(?)"
+        params.append(end_date)
+    if category:
+        query += " AND category IS NOT NULL AND LOWER(category) = LOWER(?)"
+        params.append(category)
 
-        # Ensure the 'reports' directory exists
-        reports_directory = "reports"
-        self.ensure_directory_exists(reports_directory)
+    # Log the query and parameters
+    logging.info(f"Executing query: {query} with parameters: {params}")
 
-        try:
-            # Connect to the database
-            with connect_db() as conn:
-                if conn is None:
-                    raise ValueError("Failed to establish a database connection.")
+    cursor = conn.cursor()
+    cursor.execute(query, tuple(params))
+    expenses = cursor.fetchall()
 
-                # Choose the file path for storing the report
-                file_path = os.path.join(reports_directory, f"{user_id}_report.{report_format}")
+    # Handle empty results
+    if not expenses:
+        logging.info("No data found for the specified parameters.")
+        return None if format == "csv" else ""
 
-                # Generate the report based on the chosen format
-                report_file_path = generate_report(conn, user_id, format=report_format, file_path=file_path)
+    # Generate report based on format
+    if format == "text":
+        return generate_text_report(expenses)
+    elif format == "csv" and file_path:
+        return generate_csv_report(expenses, file_path)
+    else:
+        raise ValueError("Unsupported report format.")
 
-                if report_file_path:
-                    if report_format == 'pdf':
-                        await ctx.send(translate("pdf_report_generated", user_language, file_path=report_file_path))
-                    elif report_format == 'csv':
-                        await ctx.send(translate("csv_report_generated", user_language, file_path=report_file_path))
-                else:
-                    await ctx.send(translate("report_generation_failed", user_language, error="No data found"))
+def generate_text_report(expenses):
+    report = "Expense Report\n\n"
+    for amount, description, category, date_added in expenses:
+        report += f"Amount: {amount}, Description: {description}, Category: {category if category else 'N/A'}, Date Added: {date_added}\n"
+    return report
 
-        except sqlite3.Error as db_err:
-            await ctx.send(translate("error_connecting_db", user_language, error=str(db_err)))
-        except Exception as e:
-            # Send an error message if anything goes wrong
-            await ctx.send(translate("report_generation_failed", user_language, error=str(e)))
+def generate_csv_report(expenses, file_path):
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-    def ensure_directory_exists(self, directory_path):
-        if not os.path.exists(directory_path):
-            os.makedirs(directory_path)
-
-# Asynchronous function to add the Cog to the bot
-async def setup(bot):
-    await bot.add_cog(GenerateReport(bot))
+    with open(file_path, mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Amount", "Description", "Category", "Date Added"])
+        for expense in expenses:
+            writer.writerow(expense)
+    
+    logging.info(f"CSV report saved to {file_path}")
+    return file_path

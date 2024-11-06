@@ -19,7 +19,7 @@ with open(config_path, 'r') as config_file:
 def initialize_database(db_path):
     if not os.path.exists(db_path):
         conn = sqlite3.connect(db_path)
-        db.create_expenses_table(conn)  # Ensure the table is created
+        db.create_tables(conn)  # Call a consolidated function to create all necessary tables
         conn.close()
 
 # Define a Cog class to handle the "delete_expense" command.
@@ -34,7 +34,7 @@ class DeleteExpense(commands.Cog):
         """
         # Get the user's preferred language from the database or default to 'en'
         user_id = ctx.author.id
-        language = get_user_language(user_id)  # Using the function to get language from the database
+        language = get_user_language(user_id) or "en"  # Default to "en" if language is not set
 
         # Generate an absolute path to the database
         db_directory = os.path.join(os.path.dirname(__file__), "../database")
@@ -50,6 +50,14 @@ class DeleteExpense(commands.Cog):
         # Connect to the database and delete the expense
         try:
             with sqlite3.connect(db_path) as conn:
+                # Check if the expense exists
+                cursor = conn.cursor()
+                cursor.execute("SELECT id FROM expenses WHERE id = ?", (expense_id,))
+                if cursor.fetchone() is None:
+                    response = translate("no_expense_found", language, id=expense_id)
+                    await ctx.send(response)
+                    return
+
                 # Delete the expense using the provided ID
                 db.delete_expense(conn, expense_id)
 
@@ -61,7 +69,7 @@ class DeleteExpense(commands.Cog):
 
         except sqlite3.OperationalError as e:
             logging.error(f"Error: {e}")
-            await ctx.send("Could not open the database. Please try again later.")
+            await ctx.send(translate("error_connecting_db", language))
 
 # Asynchronous function to add the Cog to the bot.
 async def setup(bot):
