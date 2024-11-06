@@ -111,7 +111,20 @@ translations = {
 # Function to retrieve the translated message
 def translate(message_key, language="en", **kwargs):
     print(f"Translating '{message_key}' to '{language}' with values {kwargs}")
+    
+    # Use default language if the specified one isn't available
     if language not in translations:
         language = "en"
-    message_template = translations[language].get(message_key, "")
-    return message_template.format(**kwargs)
+    
+    # Get the message template, fallback if the key is missing
+    message_template = translations[language].get(message_key, f"[Missing translation for key: {message_key}]")
+    
+    # Ensure message_template is a string before formatting
+    if isinstance(message_template, str):
+        try:
+            # Format with the provided kwargs, catch errors if placeholders are missing
+            return message_template.format(**kwargs)
+        except KeyError as e:
+            return f"[Translation error: missing placeholder {str(e)} for key: {message_key}]"
+    else:
+        return f"[Translation error: template for key {message_key} is not a valid string]"

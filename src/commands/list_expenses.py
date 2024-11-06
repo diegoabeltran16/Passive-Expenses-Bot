@@ -3,12 +3,12 @@ import sqlite3
 import logging
 from discord.ext import commands
 from src.utils.lang import translate
-from src.utils import db  # Importing the database utilities
-from src.utils.shared import get_user_language  # Replace user_language dictionary with function
+from src.utils.db import list_expenses as fetch_expenses
+from src.utils.shared import get_user_language
 import yaml
 
 # Setup logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # Load configuration from config.yaml
 config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.yaml')
@@ -19,7 +19,18 @@ with open(config_path, 'r') as config_file:
 def initialize_database(db_path):
     if not os.path.exists(db_path):
         conn = sqlite3.connect(db_path)
-        db.create_expenses_table(conn)  # Ensure the expenses table is created
+        cursor = conn.cursor()
+        # Create the expenses table if it doesn't exist
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                amount REAL NOT NULL,
+                description TEXT NOT NULL,
+                date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
         conn.close()
 
 class ListExpenses(commands.Cog):
@@ -27,58 +38,53 @@ class ListExpenses(commands.Cog):
         self.bot = bot
 
     @commands.command(name='list_expenses', aliases=['listar_gastos'])
-    async def list_expenses(self, ctx, conn=None):
+    async def list_expenses(self, ctx):
         """
         A command that lists all expenses from the SQLite database and sends them to the Discord channel.
-        
-        Parameters:
-        ctx: The context of the command invocation.
-        conn: Optional database connection for testing.
         """
         user_id = ctx.author.id
-
-        # Fetch the user's preferred language from the database
         language = get_user_language(user_id)
+        logging.debug(f"User {user_id} requested expense listing in language '{language}'.")
 
-        if not conn:
-            # Generate an absolute path to the database
-            db_directory = os.path.join(os.path.dirname(__file__), "../database")
-            db_path = os.path.join(db_directory, "expenses.db")
-
-            # Ensure the directory exists
-            if not os.path.exists(db_directory):
-                os.makedirs(db_directory)
-
-            # Initialize the database if needed
-            initialize_database(db_path)
-
-            try:
-                conn = sqlite3.connect(db_path)
-            except sqlite3.OperationalError as e:
-                logging.error(f"Error opening database: {e}")
-                await ctx.send(translate("error_connecting_db", language, error=str(e)))
-                return
+        # Database path and initialization
+        db_directory = os.path.join(os.path.dirname(__file__), "../database")
+        db_path = os.path.join(db_directory, "expenses.db")
+        
+        # Ensure the database and directory exist
+        if not os.path.exists(db_directory):
+            os.makedirs(db_directory)
+        
+        initialize_database(db_path)
+        logging.debug("Database initialized and connection path set.")
 
         try:
-            expenses = db.list_expenses(conn, user_id)
+            # Open database connection
+            conn = sqlite3.connect(db_path)
+            logging.debug("Database connection opened.")
 
+            # Fetch expenses for the user
+            expenses = fetch_expenses(conn, user_id)
+            conn.close()  # Close the connection after fetching data
+            logging.debug(f"Fetched expenses: {expenses}")
+
+            # Handle response based on whether expenses were found
             if not expenses:
                 response = translate("no_expenses_found", language)
             else:
                 response = translate("here_are_your_expenses", language) + "\n"
                 for expense in expenses:
-                    response += f"ID: {expense[0]}, Amount: {expense[2]}, Description: {expense[3]}, Date Added: {expense[5]}\n"
+                    response += f"ID: {expense[0]}, Amount: {expense[1]}, Description: {expense[2]}, Date Added: {expense[3]}\n"
 
-            # Send the list of expenses to the Discord channel
+            # Send the response to the Discord channel
             await ctx.send(response)
 
+        except AttributeError as e:
+            logging.error(f"Function not found in db module: {e}")
+            await ctx.send("Error: Function not found in database utilities.")
+        
         except sqlite3.OperationalError as e:
             logging.error(f"Error querying database: {e}")
             await ctx.send(translate("error_connecting_db", language, error=str(e)))
-
-        finally:
-            if conn:
-                conn.close()
 
 # Async function to add the Cog to the bot
 async def setup(bot):

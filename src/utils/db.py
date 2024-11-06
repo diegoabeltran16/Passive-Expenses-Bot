@@ -7,11 +7,12 @@ def connect_db():
     """
     try:
         conn = sqlite3.connect('src/database/expenses.db')
-        create_tables(conn)  # Create all tables
+        create_tables(conn)  # Ensure all tables are created
         return conn
     except sqlite3.Error as e:
         print(f"Error connecting to the database: {e}")
         return None
+
 
 def create_tables(conn):
     """Creates necessary tables in the database if they don't already exist."""
@@ -241,3 +242,24 @@ def delete_report(conn, report_id):
     except sqlite3.Error as e:
         print(f"Error deleting report: {e}")
         conn.rollback()
+
+        
+import sqlite3
+
+def list_expenses(conn, user_id):
+    """
+    Retrieves all expenses for a specific user from the database.
+    """
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, amount, description, date_added
+            FROM expenses
+            WHERE user_id = ?
+        ''', (user_id,))
+        return cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"Error retrieving expenses: {e}")
+        return []
+
+

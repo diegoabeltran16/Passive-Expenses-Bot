@@ -41,7 +41,7 @@ async def load_extensions():
         'src.commands.log_report',     
         'src.commands.get_reports',    
         'src.commands.delete_report',
-        'src.commands.generate_report'  # Ensure you add this!
+        'src.commands.generate_report'
     ]
 
     for extension in extensions:
