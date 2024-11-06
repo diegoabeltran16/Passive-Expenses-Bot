@@ -44,7 +44,9 @@ translations = {
         "error_deleting_file": "Error deleting file: {error}",
         "pdf_report_generated": "PDF report generated: {file_path}",
         "text_report_generated": "Text report generated successfully.",
-        "no_report_found": "No report found with ID {id}."
+        "no_report_found": "No report found with ID {id}.",
+        "csv_report_generated": "CSV report generated and saved at: {file_path}",
+        "text_report_generated": "Text report generated successfully."
     },
     "es": {
         "expense_logged": "Gasto registrado con ID {id}: {amount} por {description}.",
@@ -90,8 +92,9 @@ translations = {
         "error_deleting_file": "Error al eliminar el archivo: {error}",
         "pdf_report_generated": "Informe PDF generado: {file_path}",
         "text_report_generated": "Informe de texto generado con éxito.",
-        "no_report_found": "No se encontró un informe con ID {id}."
-    }
+        "no_report_found": "No se encontró un informe con ID {id}.",
+        "csv_report_generated": "Informe CSV generado y guardado en: {file_path}",
+        "text_report_generated": "Informe de texto generado con éxito.",    }
 }
 
 
