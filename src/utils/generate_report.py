@@ -1,55 +1,70 @@
-import sqlite3
-from discord.ext import commands
-from src.utils.lang import translate
-from src.utils.report_generator import generate_report
-from src.utils.db import connect_db
+import csv
 import os
+import sqlite3
 
-class GenerateReport(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+def generate_report(conn, user_id, start_date=None, end_date=None, category=None, format="csv", file_path=None):
+    """
+    Generates an expense report in the specified format based on filters.
+    
+    Parameters:
+    - conn: SQLite database connection.
+    - user_id: The ID of the user for whom to generate the report.
+    - start_date: Filter for the start date.
+    - end_date: Filter for the end date.
+    - category: Filter for the category.
+    - format: Format of the report ("csv" or "text").
+    - file_path: Path to save the report if applicable (for CSV format).
+    
+    Returns:
+    - For text format: Returns the report as a string.
+    - For CSV: Returns the file path.
+    """
+    # Define SQL query with filters
+    query = "SELECT amount, description, category, date_added FROM expenses WHERE user_id = ?"
+    params = [user_id]
 
-    @commands.command(name='generate_report', aliases=['generar_reporte'])
-    async def generate_report(self, ctx, report_format: str = "csv"):
-        """
-        Command to generate an expense report in the specified format.
-        Supported format currently is 'csv'.
-        """
-        user_id = ctx.author.id
-        user_language = 'es'  # Set to user's language
+    if start_date:
+        query += " AND date_added >= ?"
+        params.append(start_date)
+    if end_date:
+        query += " AND date_added <= ?"
+        params.append(end_date)
+    if category:
+        query += " AND category = ?"
+        params.append(category)
 
-        # Ensure the 'reports' directory exists
-        if not os.path.exists('reports'):
-            os.makedirs('reports')
+    cursor = conn.cursor()
+    cursor.execute(query, tuple(params))
+    expenses = cursor.fetchall()
 
-        conn = None
-        try:
-            # Connect to the database
-            conn = connect_db()
+    # Return None if there are no expenses for the specified filters
+    if not expenses:
+        return None
 
-            # Check if connection was established
-            if conn is None:
-                raise ValueError("Failed to establish a database connection.")
+    # Generate the report based on the specified format
+    if format == "text":
+        return generate_text_report(expenses)
+    elif format == "csv" and file_path:
+        return generate_csv_report(expenses, file_path)
+    else:
+        raise ValueError("Unsupported report format.")
 
-            # File path for storing the report
-            file_path = f"reports/{user_id}_report.{report_format}"
+def generate_text_report(expenses):
+    """
+    Generates a text report as a string.
+    """
+    report = "Expense Report\n\n"
+    for amount, description, category, date_added in expenses:
+        report += f"Amount: {amount}, Description: {description}, Category: {category if category else 'N/A'}, Date Added: {date_added}\n"
+    return report
 
-            # Generate the report (CSV by default)
-            report = generate_report(conn, user_id, format=report_format, file_path=file_path)
-
-            if report:
-                if report_format == 'csv':
-                    await ctx.send(translate("csv_report_generated", user_language, file_path=file_path))
-                else:
-                    await ctx.send(translate("report_generation_failed", user_language, error="Unsupported format"))
-            else:
-                await ctx.send(translate("report_generation_failed", user_language, error="No data found"))
-
-        except Exception as e:
-            # Handle any exceptions that may arise during report generation
-            await ctx.send(translate("report_generation_failed", user_language, error=str(e)))
-
-        finally:
-            # Close the database connection synchronously
-            if conn:
-                conn.close()
+def generate_csv_report(expenses, file_path):
+    """
+    Generates a CSV report and saves it to file_path.
+    """
+    with open(file_path, mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Amount", "Description", "Category", "Date Added"])
+        for expense in expenses:
+            writer.writerow(expense)
+    return file_path

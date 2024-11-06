@@ -44,14 +44,7 @@ translations = {
         "error_deleting_file": "Error deleting file: {error}",
         "pdf_report_generated": "PDF report generated: {file_path}",
         "text_report_generated": "Text report generated successfully.",
-        "reports_listed": "Your reports:\n{reports}",
-        "no_reports_found": "You have no reports.",
-        "error_retrieving_reports": "Failed to retrieve reports: {error}",
-        "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
-        "no_report_found": "No report found with ID {id}.",
-        "report_deleted_confirmation": "Report with ID {id} has been deleted successfully.",
-        "no_report_found": "No report found with ID {id}.",
-        "error_deleting_report": "An error occurred while deleting the report: {error}"
+        "no_report_found": "No report found with ID {id}."
     },
     "es": {
         "expense_logged": "Gasto registrado con ID {id}: {amount} por {description}.",
@@ -97,16 +90,10 @@ translations = {
         "error_deleting_file": "Error al eliminar el archivo: {error}",
         "pdf_report_generated": "Informe PDF generado: {file_path}",
         "text_report_generated": "Informe de texto generado con éxito.",
-        "reports_listed": "Tus informes:\n{reports}",
-        "no_reports_found": "No se encontraron informes.",
-        "error_retrieving_reports": "Error al recuperar informes: {error}",
-        "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
-        "no_report_found": "No se encontró un informe con ID {id}.",
-        "report_deleted_confirmation": "Informe con ID {id} ha sido eliminado con éxito.",
-        "no_report_found": "No se encontró un informe con ID {id}.",
-        "error_deleting_report": "Ocurrió un error al eliminar el informe: {error}"
+        "no_report_found": "No se encontró un informe con ID {id}."
     }
 }
+
 
 # Function to retrieve the translated message
 def translate(message_key, language="en", **kwargs):
